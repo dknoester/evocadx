@@ -1,0 +1,211 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4256FB121892D651004AB7F9 /* centroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4256FB101892D651004AB7F9 /* centroid.cpp */; };
+		4256FB141892D689004AB7F9 /* libea.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4256FB131892D689004AB7F9 /* libea.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4256FAFD1892D5EE004AB7F9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4256FAFF1892D5EE004AB7F9 /* evocadx-centroid */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "evocadx-centroid"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4256FB0C1892D651004AB7F9 /* evocadx.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = evocadx.xcconfig; sourceTree = "<group>"; };
+		4256FB0D1892D651004AB7F9 /* Jamroot */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Jamroot; sourceTree = "<group>"; };
+		4256FB0F1892D651004AB7F9 /* analysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = analysis.h; sourceTree = "<group>"; };
+		4256FB101892D651004AB7F9 /* centroid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = centroid.cpp; sourceTree = "<group>"; };
+		4256FB111892D651004AB7F9 /* evocadx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = evocadx.h; sourceTree = "<group>"; };
+		4256FB131892D689004AB7F9 /* libea.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libea.a; path = ../DerivedData/research/Build/Products/Debug/libea.a; sourceTree = "<group>"; };
+		4256FB161892D71F004AB7F9 /* ealib.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = ealib.cfg; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4256FAFC1892D5EE004AB7F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4256FB141892D689004AB7F9 /* libea.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4256FAF61892D5EE004AB7F9 = {
+			isa = PBXGroup;
+			children = (
+				4256FB0B1892D651004AB7F9 /* etc */,
+				4256FB0D1892D651004AB7F9 /* Jamroot */,
+				4256FB151892D6BE004AB7F9 /* lib */,
+				4256FB0E1892D651004AB7F9 /* src */,
+				4256FB001892D5EE004AB7F9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4256FB001892D5EE004AB7F9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4256FAFF1892D5EE004AB7F9 /* evocadx-centroid */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4256FB0B1892D651004AB7F9 /* etc */ = {
+			isa = PBXGroup;
+			children = (
+				4256FB161892D71F004AB7F9 /* ealib.cfg */,
+				4256FB0C1892D651004AB7F9 /* evocadx.xcconfig */,
+			);
+			path = etc;
+			sourceTree = "<group>";
+		};
+		4256FB0E1892D651004AB7F9 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4256FB0F1892D651004AB7F9 /* analysis.h */,
+				4256FB101892D651004AB7F9 /* centroid.cpp */,
+				4256FB111892D651004AB7F9 /* evocadx.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		4256FB151892D6BE004AB7F9 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				4256FB131892D689004AB7F9 /* libea.a */,
+			);
+			name = lib;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4256FAFE1892D5EE004AB7F9 /* evocadx-centroid */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4256FB081892D5EE004AB7F9 /* Build configuration list for PBXNativeTarget "evocadx-centroid" */;
+			buildPhases = (
+				4256FAFB1892D5EE004AB7F9 /* Sources */,
+				4256FAFC1892D5EE004AB7F9 /* Frameworks */,
+				4256FAFD1892D5EE004AB7F9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "evocadx-centroid";
+			productName = "evocadx-centroid";
+			productReference = 4256FAFF1892D5EE004AB7F9 /* evocadx-centroid */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4256FAF71892D5EE004AB7F9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Dave Knoester";
+			};
+			buildConfigurationList = 4256FAFA1892D5EE004AB7F9 /* Build configuration list for PBXProject "evocadx" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4256FAF61892D5EE004AB7F9;
+			productRefGroup = 4256FB001892D5EE004AB7F9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4256FAFE1892D5EE004AB7F9 /* evocadx-centroid */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4256FAFB1892D5EE004AB7F9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4256FB121892D651004AB7F9 /* centroid.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4256FB061892D5EE004AB7F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4256FB0C1892D651004AB7F9 /* evocadx.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		4256FB071892D5EE004AB7F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4256FB0C1892D651004AB7F9 /* evocadx.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		4256FB091892D5EE004AB7F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/dk/Documents/repositories/research.hg/src/DerivedData/research/Build/Products/Debug,
+				);
+			};
+			name = Debug;
+		};
+		4256FB0A1892D5EE004AB7F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/dk/Documents/repositories/research.hg/src/DerivedData/research/Build/Products/Debug,
+				);
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4256FAFA1892D5EE004AB7F9 /* Build configuration list for PBXProject "evocadx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4256FB061892D5EE004AB7F9 /* Debug */,
+				4256FB071892D5EE004AB7F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4256FB081892D5EE004AB7F9 /* Build configuration list for PBXNativeTarget "evocadx-centroid" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4256FB091892D5EE004AB7F9 /* Debug */,
+				4256FB0A1892D5EE004AB7F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4256FAF71892D5EE004AB7F9 /* Project object */;
+}

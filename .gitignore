@@ -11,3 +11,10 @@
 *.lai
 *.la
 *.a
+.DS_Store
+bin
+libea/bin
+tmp
+DerivedData
+build
+dist

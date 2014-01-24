@@ -1,0 +1,13 @@
+import os ;
+local HOME = [ os.environ HOME ] ;
+
+use-project /libea : ../ealib/libea ;
+
+exe evocadx-centroid :
+    src/centroid.cpp
+    /libea//libea_runner
+    : <link>static ;
+
+install dist : 
+    evocadx-centroid
+    : <location>$(HOME)/bin ;

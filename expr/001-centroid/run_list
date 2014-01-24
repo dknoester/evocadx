@@ -1,0 +1,11 @@
+set description 001-centroid
+set email dk@msu.edu
+set freq_email Crash
+set priority 3
+set class_pref 99
+set walltime 4
+set mem_request 2
+set config_dir config
+set max_cpus 30
+
+1..30 ta0 /mnt/home/dk/bin/evocadx-centroid --ea.rng.seed $seed
