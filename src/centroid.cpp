@@ -19,6 +19,8 @@
  */
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
+#include <boost/shared_ptr.hpp>
+#include <vector>
 #include <ea/mkv/markov_evolution_algorithm.h>
 #include <ea/generational_models/moran_process.h>
 #include <ea/fitness_function.h>
@@ -28,28 +30,29 @@ using namespace ealib;
 
 #include "analysis.h"
 #include "evocadx.h"
-
+#include "png.h"
 
 /*! Image centroid fitness function for Markov networks.
  */
 struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, stochasticS> {
+    typedef boost::shared_ptr<png> png_ptr_type;
+    typedef std::vector<png_ptr_type> image_vector_type; //!< Type of vector of PNGs.
+    
     
     /*! Initialize this fitness function -- load data, etc. */
     template <typename RNG, typename EA>
     void initialize(RNG& rng, EA& ea) {
         using namespace boost::filesystem;
-        std::vector<std::string> filenames;
-        
         recursive_directory_iterator i(path(get<EVOCADX_DATADIR>(ea)));
         recursive_directory_iterator end;
-
-        static const boost::regex e(get<EVOCADX_FILE_REGEX>(ea));
+        boost::regex e(get<EVOCADX_FILE_REGEX>(ea));
         
         for( ; i!=end; ++i) {
             if(boost::filesystem::is_regular_file(*i)) {
                 std::string abspath=absolute(*i).string();
                 if(boost::regex_match(abspath,e)) {
-                    filenames.push_back(abspath);
+                    png_ptr_type p(new png(abspath));
+                    _images.push_back(p);
                 }
             }
         }
@@ -71,6 +74,8 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
         // and return some measure of fitness:
         return f;
     }
+                                                
+    image_vector_type _images; //!< Vector of images loaded from disk.
 };
 
 // Evolutionary algorithm definition.
@@ -97,6 +102,7 @@ public:
         add_option<RECORDING_PERIOD>(this);
         
         add_option<EVOCADX_DATADIR>(this);
+        add_option<EVOCADX_FILE_REGEX>(this);
     }
     
     
