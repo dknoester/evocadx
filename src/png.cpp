@@ -25,6 +25,41 @@ uint16_t PNG::operator[](int index){
   return (this->pixels[index*2] << 8 | this->pixels[index*2+1]);
 }
 
+//Calculates the centroid of white pixels. If the first argument is true 
+//(default), each pixel is weighted by how light it is. If the first
+//argument is false, all pixels lighter than the threshold specified in
+//the second argument (default 1000) are counted with weight 1.
+std::pair<float,float> PNG::getCentroid(bool weighted, int threshold){
+  float x = 0;
+  float y = 0;
+  float n = 0;
+  for (int i=0; i<this->pixels.size()/2; i++){
+    if (weighted){
+      //last term is whiteness/maximumWhiteness
+      x += (i%this->width)*((float)((*this)[i])/65535.0);
+      y += (i/this->width)*((float)((*this)[i])/65535.0);
+      n += (float)((*this)[i])/65535.0;
+    } else {
+      if ((*this)[i] > threshold){
+	x += i%this->width;
+	y += i/this->width;
+	n++;
+      }
+    }
+  }
+  x = x/n;
+  y = y/n;
+  return std::pair<float,float>(x,y);
+}
+//Takes ints representing x and y coordinates of a pixel and returns
+//the distance from that pixel to the centroid.
+//Optional weighted and theshold arguments get passed to the getCentroid()
+//function.
+float PNG::distanceToCentroid(int x, int y, bool weighted, int threshold){
+  std::pair<float, float> centroid = this->getCentroid(weighted, threshold);
+  return sqrt(pow((x - centroid.first), 2) + pow((y - centroid.second), 2));
+}
+
 /* ------Helper functions for constructor------*/
 
 /*
@@ -580,15 +615,18 @@ void loadFile(std::vector<unsigned char>& buffer, const std::string& filename) /
 }
 
 /* Test function*/
-//int main(int argc, char *argv[])
-//{
-//  PNG image = PNG(argc > 1 ? argv[1] : "test.png");
-//  std::cout << "Width: " << image.getWidth() << " Height: " << image.getHeight() << " First pixel: " << image[0]; 
-//  std:: cout << " Seventh pixel: " << image[1913] << std::endl;
-//  /*for (int i=0; i<image.getHeight()*image.getWidth(); i+=1000){
-//    std::cout << "(" << i%image.getWidth() << ", "  << i/image.getWidth() << "): " << image[i] << "    ";
-//    }*/
-//  return 0;
-//}
+// int main(int argc, char *argv[])
+// {
+//   PNG image = PNG(argc > 1 ? argv[1] : "test.png");
+//   std::cout << "Width: " << image.getWidth() << " Height: " << image.getHeight() << " First pixel: " << image[0]; 
+//   std:: cout << " End of first row pixel: " << image[1913] << std::endl;
+//   std::pair<float, float> centroid = image.getCentroid();
+//   std::cout << "Centroid: " << centroid.first << ", " << centroid.second << std::endl;
+//   std::cout << "Distance of 1480, 1100 to centroid: " << image.distanceToCentroid(1480, 1100) << std::endl;
+//   for (int i=0; i<image.getHeight()*image.getWidth(); i+=1000){
+//     std::cout << "(" << i%image.getWidth() << ", "  << i/image.getWidth() << "): " << image[i] << "    ";
+//     }
+//   return 0;
+// }
 
 

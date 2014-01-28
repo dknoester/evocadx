@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <boost/cstdint.hpp>
+#include <cmath>
 
 typedef std::size_t size_t;
 
@@ -24,6 +25,8 @@ class PNG{
   unsigned long getWidth();
   unsigned long getHeight();
   uint16_t operator[](int index);
+  std::pair<float, float> getCentroid(bool weighted = true, int threshold = 1000);
+  float distanceToCentroid(int x, int y, bool weighted = true, int threshold = 1000);
 };
 
 /* Exception to throw if PNG constructor encounters error opening file*/
