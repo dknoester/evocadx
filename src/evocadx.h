@@ -23,6 +23,7 @@
 #include <ea/meta_data.h>
 
 LIBEA_MD_DECL(EVOCADX_DATADIR, "evocadx.data_directory", std::string);
+LIBEA_MD_DECL(EVOCADX_FILE_REGEX, "evocadx.file_regex", std::string);
 
 
 #endif

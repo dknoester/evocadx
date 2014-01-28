@@ -17,12 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ea/evolutionary_algorithm.h>
+#include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
+#include <ea/mkv/markov_evolution_algorithm.h>
 #include <ea/generational_models/moran_process.h>
 #include <ea/fitness_function.h>
 #include <ea/cmdline_interface.h>
 #include <ea/datafiles/fitness.h>
-#include <ea/mkv/markov_network.h>
 using namespace ealib;
 
 #include "analysis.h"
@@ -36,6 +37,22 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
     /*! Initialize this fitness function -- load data, etc. */
     template <typename RNG, typename EA>
     void initialize(RNG& rng, EA& ea) {
+        using namespace boost::filesystem;
+        std::vector<std::string> filenames;
+        
+        recursive_directory_iterator i(path(get<EVOCADX_DATADIR>(ea)));
+        recursive_directory_iterator end;
+
+        static const boost::regex e(get<EVOCADX_FILE_REGEX>(ea));
+        
+        for( ; i!=end; ++i) {
+            if(boost::filesystem::is_regular_file(*i)) {
+                std::string abspath=absolute(*i).string();
+                if(boost::regex_match(abspath,e)) {
+                    filenames.push_back(abspath);
+                }
+            }
+        }
     }
     
 	template <typename Individual, typename RNG, typename EA>
@@ -57,14 +74,10 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
 };
 
 // Evolutionary algorithm definition.
-typedef evolutionary_algorithm
-< individual<mkv::representation_type, centroid_fitness, markov_network< >, indirectS, mkv::default_traits>
-, mkv::ancestor_generator
-, mkv::mutation_type
+typedef markov_evolution_algorithm
+< centroid_fitness
 , recombination::asexual
 , generational_models::moran_process< >
-, dont_stop
-, mkv::configuration
 > ea_type;
 
 /*! Define the EA's command-line interface.
