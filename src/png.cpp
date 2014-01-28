@@ -1,91 +1,57 @@
+/* png.h
+ *
+ * This file is part of EvoCADx.
+ *
+ * Copyright 2014 Emily L. Dolson, David B. Knoester.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#include <boost/cstdint.hpp>
+#include <boost/lexical_cast.hpp>
+#include <exception>
+#include <fstream>
+#include <iostream>
 #include "png.h"
 
-/* Constructor for PNG class. Opens and loads specified file and stores pixel
- * values, width, and height in new PNG object. Based on main() function from
- * picoPNG. File must be a 16-bit greyscale PNG image.*/
-PNG::PNG(std::string filename){
-  std::vector<unsigned char> buffer;
-  loadFile(buffer, filename);
-  //std::vector<unsigned char> recv_pixels;
-  int error = decodePNG(this->pixels, this->width, this->height, buffer.empty() ? 0 : &buffer[0], (unsigned long)buffer.size(), false);
-  if (error){throw PNGDecodeException();}
-  
-}
-
-unsigned long PNG::getHeight(){
-  return this->height;
-}
-
-unsigned long PNG::getWidth(){
-  return this->width;
-}
-
-uint16_t PNG::operator[](int index){
-  //Because these are 16-bit values, we need to concatenate two chars
-  return (this->pixels[index*2] << 8 | this->pixels[index*2+1]);
-}
-
-//Calculates the centroid of white pixels. If the first argument is true 
-//(default), each pixel is weighted by how light it is. If the first
-//argument is false, all pixels lighter than the threshold specified in
-//the second argument (default 1000) are counted with weight 1.
-std::pair<float,float> PNG::getCentroid(bool weighted, int threshold){
-  float x = 0;
-  float y = 0;
-  float n = 0;
-  for (int i=0; i<this->pixels.size()/2; i++){
-    if (weighted){
-      //last term is whiteness/maximumWhiteness
-      x += (i%this->width)*((float)((*this)[i])/65535.0);
-      y += (i/this->width)*((float)((*this)[i])/65535.0);
-      n += (float)((*this)[i])/65535.0;
-    } else {
-      if ((*this)[i] > threshold){
-	x += i%this->width;
-	y += i/this->width;
-	n++;
-      }
-    }
-  }
-  x = x/n;
-  y = y/n;
-  return std::pair<float,float>(x,y);
-}
-//Takes ints representing x and y coordinates of a pixel and returns
-//the distance from that pixel to the centroid.
-//Optional weighted and theshold arguments get passed to the getCentroid()
-//function.
-float PNG::distanceToCentroid(int x, int y, bool weighted, int threshold){
-  std::pair<float, float> centroid = this->getCentroid(weighted, threshold);
-  return sqrt(pow((x - centroid.first), 2) + pow((y - centroid.second), 2));
-}
-
 /* ------Helper functions for constructor------*/
+// picopng needs this...
+typedef std::size_t size_t;
 
 /*
-decodePNG: The picoPNG function, decodes a PNG file buffer in memory, into a raw pixel buffer.
+decodepng: The picopng function, decodes a png file buffer in memory, into a raw pixel buffer.
 out_image: output parameter, this will contain the raw pixels after decoding.
   By default the output is 32-bit RGBA color.
   The std::vector is automatically resized to the correct size.
 image_width: output_parameter, this will contain the width of the image in pixels.
 image_height: output_parameter, this will contain the height of the image in pixels.
-in_png: pointer to the buffer of the PNG file in memory. To get it from a file on
+in_png: pointer to the buffer of the png file in memory. To get it from a file on
   disk, load it and store it in a memory buffer yourself first.
-in_size: size of the input PNG file in bytes.
+in_size: size of the input png file in bytes.
 convert_to_rgba32: optional parameter, true by default.
   Set to true to get the output in RGBA 32-bit (8 bit per channel) color format
-  no matter what color type the original PNG image had. This gives predictable,
-  useable data from any random input PNG.
+  no matter what color type the original png image had. This gives predictable,
+  useable data from any random input png.
   Set to false to do no color conversion at all. The result then has the same data
-  type as the PNG image, which can range from 1 bit to 64 bits per pixel.
+  type as the png image, which can range from 1 bit to 64 bits per pixel.
   Information about the color type or palette colors are not provided. You need
   to know this information yourself to be able to use the data so this only
-  works for trusted PNG files. Use LodePNG instead of picoPNG if you need this information.
+  works for trusted png files. Use Lodepng instead of picopng if you need this information.
 return: 0 if success, not 0 if some error occured.
 */
-int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width, unsigned long& image_height, const unsigned char* in_png, size_t in_size, bool convert_to_rgba32)
+int decode_png(std::vector<unsigned char>& out_image, unsigned long& image_width, unsigned long& image_height, const unsigned char* in_png, size_t in_size, bool convert_to_rgba32)
 {
-  // picoPNG version 20101224
+  // picopng version 20101224
   // Copyright (c) 2005-2010 Lode Vandevenne
   //
   // This software is provided 'as-is', without any express or implied
@@ -104,11 +70,11 @@ int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width,
   //     misrepresented as being the original software.
   //     3. This notice may not be removed or altered from any source distribution.
   
-  // picoPNG is a PNG decoder in one C++ function of around 500 lines. Use picoPNG for
+  // picopng is a png decoder in one C++ function of around 500 lines. Use picopng for
   // programs that need only 1 .cpp file. Since it's a single function, it's very limited,
-  // it can convert a PNG to raw pixel data either converted to 32-bit RGBA color or
+  // it can convert a png to raw pixel data either converted to 32-bit RGBA color or
   // with no color conversion at all. For anything more complex, another tiny library
-  // is available: LodePNG (lodepng.c(pp)), which is a single source and header file.
+  // is available: Lodepng (lodepng.c(pp)), which is a single source and header file.
   // Apologies for the compact code style, it's to make this tiny.
   
   static const unsigned long LENBASE[29] =  {3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258};
@@ -300,13 +266,13 @@ int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width,
       if(in.size() < 2) { return 53; } //error, size of zlib data too small
       if((in[0] * 256 + in[1]) % 31 != 0) { return 24; } //error: 256 * in[0] + in[1] must be a multiple of 31, the FCHECK value is supposed to be made that way
       unsigned long CM = in[0] & 15, CINFO = (in[0] >> 4) & 15, FDICT = (in[1] >> 5) & 1;
-      if(CM != 8 || CINFO > 7) { return 25; } //error: only compression method 8: inflate with sliding window of 32k is supported by the PNG spec
-      if(FDICT != 0) { return 26; } //error: the specification of PNG says about the zlib stream: "The additional flags shall not specify a preset dictionary."
+      if(CM != 8 || CINFO > 7) { return 25; } //error: only compression method 8: inflate with sliding window of 32k is supported by the png spec
+      if(FDICT != 0) { return 26; } //error: the specification of png says about the zlib stream: "The additional flags shall not specify a preset dictionary."
       inflator.inflate(out, in, 2);
       return inflator.error; //note: adler32 checksum was skipped and ignored
     }
   };
-  struct PNG //nested functions for PNG decoding
+  struct png //nested functions for png decoding
   {
     struct Info
     {
@@ -429,7 +395,7 @@ int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width,
     void readPngHeader(const unsigned char* in, size_t inlength) //read the information from the header and store it in the Info
     {
       if(inlength < 29) { error = 27; return; } //error: the data length is smaller than the length of the header
-      if(in[0] != 137 || in[1] != 80 || in[2] != 78 || in[3] != 71 || in[4] != 13 || in[5] != 10 || in[6] != 26 || in[7] != 10) { error = 28; return; } //no PNG signature
+      if(in[0] != 137 || in[1] != 80 || in[2] != 78 || in[3] != 71 || in[4] != 13 || in[5] != 10 || in[6] != 26 || in[7] != 10) { error = 28; return; } //no png signature
       if(in[12] != 'I' || in[13] != 'H' || in[14] != 'D' || in[15] != 'R') { error = 29; return; } //error: it doesn't start with a IHDR chunk!
       info.width = read32bitInt(&in[16]); info.height = read32bitInt(&in[20]);
       info.bitDepth = in[24]; info.colorType = in[25];
@@ -505,7 +471,7 @@ int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width,
     }
     void setBitOfReversedStream(size_t& bitp, unsigned char* bits, unsigned long bit) { bits[bitp >> 3] |=  (bit << (7 - (bitp & 0x7))); bitp++; }
     unsigned long read32bitInt(const unsigned char* buffer) { return (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]; }
-    int checkColorValidity(unsigned long colorType, unsigned long bd) //return type is a LodePNG error code
+    int checkColorValidity(unsigned long colorType, unsigned long bd) //return type is a Lodepng error code
     {
       if((colorType == 2 || colorType == 4 || colorType == 6)) { if(!(bd == 8 || bd == 16)) return 37; else return 0; }
       else if(colorType == 0) { if(!(bd == 1 || bd == 2 || bd == 4 || bd == 8 || bd == 16)) return 37; else return 0; }
@@ -519,7 +485,7 @@ int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width,
       else return info.bitDepth;
     }
     int convert(std::vector<unsigned char>& out, const unsigned char* in, Info& infoIn, unsigned long w, unsigned long h)
-    { //converts from any color type to 32-bit. return value = LodePNG error code
+    { //converts from any color type to 32-bit. return value = Lodepng error code
       size_t numpixels = w * h, bp = 0;
       out.resize(numpixels * 4);
       unsigned char* out_ = out.empty() ? 0 : &out[0]; //faster if compiled without optimization
@@ -583,19 +549,19 @@ int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width,
       }
       return 0;
     }
-    unsigned char paethPredictor(short a, short b, short c) //Paeth predicter, used by PNG filter type 4
+    unsigned char paethPredictor(short a, short b, short c) //Paeth predicter, used by png filter type 4
     {
       short p = a + b - c, pa = p > a ? (p - a) : (a - p), pb = p > b ? (p - b) : (b - p), pc = p > c ? (p - c) : (c - p);
       return (unsigned char)((pa <= pb && pa <= pc) ? a : pb <= pc ? b : c);
     }
   };
-  PNG decoder; decoder.decode(out_image, in_png, in_size, convert_to_rgba32);
+  png decoder; decoder.decode(out_image, in_png, in_size, convert_to_rgba32);
   image_width = decoder.info.width; image_height = decoder.info.height;
   return decoder.error;
 }
 
-/* Helper function for opening .png file, originally included with picoPNG*/
-void loadFile(std::vector<unsigned char>& buffer, const std::string& filename) //designed for loading files from hard disk in an std::vector
+/* Helper function for opening .png file, originally included with picopng*/
+void load_file(png::pixel_vector_type& buffer, const std::string& filename) //designed for loading files from hard disk in an std::vector
 {
   std::ifstream file(filename.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
 
@@ -614,19 +580,80 @@ void loadFile(std::vector<unsigned char>& buffer, const std::string& filename) /
   file.close();
 }
 
-/* Test function*/
+// /* Test function*/
 // int main(int argc, char *argv[])
 // {
-//   PNG image = PNG(argc > 1 ? argv[1] : "test.png");
-//   std::cout << "Width: " << image.getWidth() << " Height: " << image.getHeight() << " First pixel: " << image[0]; 
+//   png image = png(argc > 1 ? argv[1] : "test.png");
+//   std::cout << "Width: " << image.get_width() << " Height: " << image.get_height() << " First pixel: " << image[0]; 
 //   std:: cout << " End of first row pixel: " << image[1913] << std::endl;
-//   std::pair<float, float> centroid = image.getCentroid();
+//   std::pair<float, float> centroid = image.get_centroid();
 //   std::cout << "Centroid: " << centroid.first << ", " << centroid.second << std::endl;
-//   std::cout << "Distance of 1480, 1100 to centroid: " << image.distanceToCentroid(1480, 1100) << std::endl;
-//   for (int i=0; i<image.getHeight()*image.getWidth(); i+=1000){
-//     std::cout << "(" << i%image.getWidth() << ", "  << i/image.getWidth() << "): " << image[i] << "    ";
-//     }
+//   std::cout << "Distance of 1480, 1100 to centroid: " << image.distance_to_centroid(1480, 1100) << std::endl;
 //   return 0;
 // }
 
 
+/* Constructor for png class. Opens and loads specified file and stores pixel
+ values, width, and height in new png object. Based on main() function from
+ picopng. File must be a 16-bit greyscale png image.
+ */
+png::png(const std::string& filename){
+    pixel_vector_type buffer;
+    load_file(buffer, filename);
+    //std::vector<unsigned char> recv_pixels;
+    int error = decode_png(_pixels, _width, _height, buffer.empty() ? 0 : &buffer[0], (unsigned long)buffer.size(), false);
+    if (error) {
+        throw std::runtime_error("png.cpp: decode error " + boost::lexical_cast<std::string>(error));
+    }
+}
+
+unsigned long png::get_width() const {
+    return _width;
+}
+
+unsigned long png::get_height() const {
+    return _height;
+}
+
+uint16_t png::operator[](std::size_t n) const {
+    //Because these are 16-bit values, we need to concatenate two chars
+    return (_pixels[n*2] << 8 | _pixels[n*2+1]);
+}
+
+/* Calculates the centroid of light pixels. If the first argument is true 
+(default), each pixel is weighted by how light it is. If the first
+argument is false, all pixels lighter (i.e. higher numbers) than the threshold 
+specified in the second argument (default 1000) are counted with weight 1.
+ */
+png::float_pair png::get_centroid(bool weighted, int threshold){
+  float x = 0;
+  float y = 0;
+  float n = 0;
+  for (int i=0; i<_pixels.size()/2; i++){
+    if (weighted){
+      //last term is whiteness/maximumWhiteness
+      x += (i%_width)*((float)(*this)[i]/65535.0);
+      y += (i/_width)*((float)(*this)[i]/65535.0);
+      n += (float)((*this)[i])/65535.0;
+    } else {
+      if ((*this)[i] > threshold){
+	x += i%_width;
+	y += i/_width;
+	n++;
+      }
+    }
+  }
+  x = x/n;
+  y = y/n;
+  return float_pair(x,y);
+}
+
+/* Takes ints representing x and y coordinates of a pixel and returns
+the distance from that pixel to the centroid.
+Optional weighted and theshold arguments get passed to the getCentroid()
+function.
+ */
+float png::distance_to_centroid(int x, int y, bool weighted, int threshold){
+  float_pair centroid = get_centroid(weighted, threshold);
+  return sqrt(pow((x - centroid.first), 2) + pow((y - centroid.second), 2));
+}

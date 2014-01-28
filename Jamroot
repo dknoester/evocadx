@@ -5,7 +5,10 @@ use-project /libea : ../ealib/libea ;
 
 exe evocadx-centroid :
     src/centroid.cpp
+    src/png.cpp
     /libea//libea_runner
+    /boost//filesystem
+    /boost//system
     : <link>static ;
 
 install dist : 

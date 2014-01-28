@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4256FB121892D651004AB7F9 /* centroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4256FB101892D651004AB7F9 /* centroid.cpp */; };
 		4256FB141892D689004AB7F9 /* libea.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4256FB131892D689004AB7F9 /* libea.a */; };
+		42840BC1189811EB0005BBE4 /* png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 42840BBF189811EB0005BBE4 /* png.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +33,8 @@
 		4256FB111892D651004AB7F9 /* evocadx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = evocadx.h; sourceTree = "<group>"; };
 		4256FB131892D689004AB7F9 /* libea.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libea.a; path = ../DerivedData/research/Build/Products/Debug/libea.a; sourceTree = "<group>"; };
 		4256FB161892D71F004AB7F9 /* ealib.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = ealib.cfg; sourceTree = "<group>"; };
+		42840BBF189811EB0005BBE4 /* png.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = png.cpp; sourceTree = "<group>"; };
+		42840BC0189811EB0005BBE4 /* png.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = png.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +83,8 @@
 				4256FB0F1892D651004AB7F9 /* analysis.h */,
 				4256FB101892D651004AB7F9 /* centroid.cpp */,
 				4256FB111892D651004AB7F9 /* evocadx.h */,
+				42840BBF189811EB0005BBE4 /* png.cpp */,
+				42840BC0189811EB0005BBE4 /* png.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -144,6 +149,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4256FB121892D651004AB7F9 /* centroid.cpp in Sources */,
+				42840BC1189811EB0005BBE4 /* png.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
