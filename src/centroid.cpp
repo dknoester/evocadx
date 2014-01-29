@@ -22,6 +22,8 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include <ea/mkv/markov_evolution_algorithm.h>
+#include <ea/mkv/sequence_matrix.h>
+#include <ea/mkv/camera.h>
 #include <ea/generational_models/moran_process.h>
 #include <ea/fitness_function.h>
 #include <ea/cmdline_interface.h>
@@ -43,9 +45,9 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
     template <typename RNG, typename EA>
     void initialize(RNG& rng, EA& ea) {
         using namespace boost::filesystem;
+        boost::regex e(get<EVOCADX_FILE_REGEX>(ea));
         recursive_directory_iterator i(path(get<EVOCADX_DATADIR>(ea)));
         recursive_directory_iterator end;
-        boost::regex e(get<EVOCADX_FILE_REGEX>(ea));
         
         for( ; i!=end; ++i) {
             if(boost::filesystem::is_regular_file(*i)) {
@@ -60,21 +62,39 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
     
 	template <typename Individual, typename RNG, typename EA>
 	double operator()(Individual& ind, RNG& rng, EA& ea) {
+        typedef sequence_matrix<png> matrix_type;
+        typedef retina2_iterator<matrix_type> iterator_type;
+
         // get the phenotype (markov network):
         typename EA::phenotype_type &N = ealib::phenotype(ind, ea);
+        int seed=rng.seed();
         
-        // probably want to reset the RNG for the markov network:
-        N.reset(rng.seed());
+        // accumulated fitness:
+        double w=0.0;
         
-        // now, set the values of the bits in the input vector:
-        double f=0.0;
+        // and analyze images...
+        for(int i=0; i<get<EVOCADX_EXAMINE_N>(ea); ++i) {
+            N.reset(seed);
+            N.clear();
+            
+            matrix_type M(*_images[i]);
+            iterator_type ci(M, get<EVOCADX_RETINA_SIZE>(ea), get<EVOCADX_RETINA_SIZE>(ea));
+            
+            // move camera to ~middle of the image:
+            ci.position((M.size1()-get<EVOCADX_RETINA_SIZE>(ea)/2),
+                        (M.size2()-get<EVOCADX_RETINA_SIZE>(ea)/2));            
+            
+            for(int j=0; j<get<EVOCADX_UPDATE_N>(ea); ++j) {
+                N.update(ci);
+                ci.move(algorithm::bits2ternary(N.begin_output()), algorithm::bits2ternary(N.begin_output()+2));
+            }
+            
+            w += _images[i]->distance_to_centroid(ci._j, ci._i);
+        }
         
-        // analyze images...
-        
-        // and return some measure of fitness:
-        return f;
+        return 1.0 / (w + 1.0);
     }
-                                                
+    
     image_vector_type _images; //!< Vector of images loaded from disk.
 };
 

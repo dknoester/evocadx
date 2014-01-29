@@ -27,26 +27,42 @@
  */
 class png {
 public:
-    typedef std::vector<unsigned char> pixel_vector_type; //<! Type for storing pixel data.
-    typedef std::pair<float, float> float_pair; //<! Type for storing centroid.
-
+    typedef uint16_t value_type; //!< Value type for pixel data.
+    typedef std::vector<uint16_t> pixel_vector_type; //<! Type for storing pixel data.
+    typedef std::pair<float, float> centroid_type; //<! Type for storing centroid.
+    
     //! Constructor.
-    png(const std::string& filename);
+    png(const std::string& filename, bool weighted=true, value_type threshold=1000);
+
     //! Returns the width of this image, in pixels.
     unsigned long get_width() const;
+    
     //! Returns the height of this image, in pixels.
     unsigned long get_height() const;
+
+    //! Returns the size of this image, in pixels.
+    std::size_t size() const;
+
+    //! Returns the number of rows (when treating this image as a matrix).
+    std::size_t size1() const;
+    
+    //! Returns the number of columns (when treating this image as a matrix).
+    std::size_t size2() const;
+    
     //! Returns the 16b value of the n'th pixel.
-    uint16_t operator[](std::size_t n) const;
-    //! Returns centroid of light pixels
-    png::float_pair get_centroid(bool weighted = true, int threshold = 1000);
-    //! Returns distance of specified x,y coordinates to centroid
-    float distance_to_centroid(int x, int y, bool weighted = true, int threshold = 1000);
+    value_type& operator[](std::size_t n);
+
+    //! Returns the 16b value of the n'th pixel (const-qualified).
+    const value_type& operator[](std::size_t n) const;
+
+    //! Returns the distance of specified (x,y) coordinate to the centroid of this image.
+    float distance_to_centroid(std::size_t x, std::size_t y);
     
 private:
     pixel_vector_type _pixels; //!< Pixel data.
-    unsigned long _width; //!< Width of image.
-    unsigned long _height; //<! Height of image.
+    std::size_t _width; //!< Width of image in pixels.
+    std::size_t _height; //<! Height of image in pixels.
+    centroid_type _centroid; //!< Centroid of the image.
 };
 
 #endif
