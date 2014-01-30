@@ -646,20 +646,19 @@ unsigned long png::get_height() const {
 }
 
 //! Returns the size of this image, in pixels.
-std::size_t png::size() const {
+unsigned long png::size() const {
     return _width * _height;
 }
 
-std::size_t png::size1() const {
+unsigned long png::size1() const {
     // in matrix land, width and height are flipped!
     return _height;
 }
 
-std::size_t png::size2() const {
+unsigned long png::size2() const {
     // in matrix land, width and height are flipped!
     return _width;
 }
-
 
 png::value_type& png::operator[](std::size_t n) {
     return _pixels[n];

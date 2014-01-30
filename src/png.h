@@ -41,13 +41,13 @@ public:
     unsigned long get_height() const;
 
     //! Returns the size of this image, in pixels.
-    std::size_t size() const;
+    unsigned long size() const;
 
     //! Returns the number of rows (when treating this image as a matrix).
-    std::size_t size1() const;
+    unsigned long size1() const;
     
     //! Returns the number of columns (when treating this image as a matrix).
-    std::size_t size2() const;
+    unsigned long size2() const;
     
     //! Returns the 16b value of the n'th pixel.
     value_type& operator[](std::size_t n);
@@ -60,8 +60,8 @@ public:
     
 private:
     pixel_vector_type _pixels; //!< Pixel data.
-    std::size_t _width; //!< Width of image in pixels.
-    std::size_t _height; //<! Height of image in pixels.
+    unsigned long _width; //!< Width of image in pixels.
+    unsigned long _height; //<! Height of image in pixels.
     centroid_type _centroid; //!< Centroid of the image.
 };
 

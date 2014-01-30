@@ -123,6 +123,9 @@ public:
         
         add_option<EVOCADX_DATADIR>(this);
         add_option<EVOCADX_FILE_REGEX>(this);
+        add_option<EVOCADX_EXAMINE_N>(this);
+        add_option<EVOCADX_UPDATE_N>(this);
+        add_option<EVOCADX_RETINA_SIZE>(this);
     }
     
     
