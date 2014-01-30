@@ -583,11 +583,10 @@ void load_file(std::vector<unsigned char>& buffer, const std::string& filename) 
 // /* Test function*/
 // int main(int argc, char *argv[])
 // {
-//   png image = png(argc > 1 ? argv[1] : "test.png");
+//   long unsigned int threshold = 1000;
+//   png image = png(argc > 1 ? argv[1] : "test.png", true, threshold);
 //   std::cout << "Width: " << image.get_width() << " Height: " << image.get_height() << " First pixel: " << image[0]; 
-//   std:: cout << " End of first row pixel: " << image[1913] << std::endl;
-//   std::pair<float, float> centroid = image.get_centroid();
-//   std::cout << "Centroid: " << centroid.first << ", " << centroid.second << std::endl;
+//   std:: cout << " Last pixel: " << image[image.get_width()*image.get_height() - 1] << std::endl;
 //   std::cout << "Distance of 1480, 1100 to centroid: " << image.distance_to_centroid(1480, 1100) << std::endl;
 //   return 0;
 // }
@@ -646,20 +645,19 @@ unsigned long png::get_height() const {
 }
 
 //! Returns the size of this image, in pixels.
-std::size_t png::size() const {
+unsigned long png::size() const {
     return _width * _height;
 }
 
-std::size_t png::size1() const {
+unsigned long png::size1() const {
     // in matrix land, width and height are flipped!
     return _height;
 }
 
-std::size_t png::size2() const {
+unsigned long png::size2() const {
     // in matrix land, width and height are flipped!
     return _width;
 }
-
 
 png::value_type& png::operator[](std::size_t n) {
     return _pixels[n];
