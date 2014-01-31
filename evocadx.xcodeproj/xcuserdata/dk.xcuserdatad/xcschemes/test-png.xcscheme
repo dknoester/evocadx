@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4256FAFE1892D5EE004AB7F9"
-               BuildableName = "evocadx-centroid"
-               BlueprintName = "evocadx-centroid"
+               BlueprintIdentifier = "4279E9C3189ADF4C0071EDCA"
+               BuildableName = "test-png"
+               BlueprintName = "test-png"
                ReferencedContainer = "container:evocadx.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4256FAFE1892D5EE004AB7F9"
-            BuildableName = "evocadx-centroid"
-            BlueprintName = "evocadx-centroid"
+            BlueprintIdentifier = "4279E9C3189ADF4C0071EDCA"
+            BuildableName = "test-png"
+            BlueprintName = "test-png"
             ReferencedContainer = "container:evocadx.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -43,7 +43,8 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
-      useCustomWorkingDirectory = "NO"
+      useCustomWorkingDirectory = "YES"
+      customWorkingDirectory = "/Users/dk/Documents/repositories/research.hg/src/evocadx/test"
       buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
@@ -51,9 +52,9 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4256FAFE1892D5EE004AB7F9"
-            BuildableName = "evocadx-centroid"
-            BlueprintName = "evocadx-centroid"
+            BlueprintIdentifier = "4279E9C3189ADF4C0071EDCA"
+            BuildableName = "test-png"
+            BlueprintName = "test-png"
             ReferencedContainer = "container:evocadx.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -69,9 +70,9 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4256FAFE1892D5EE004AB7F9"
-            BuildableName = "evocadx-centroid"
-            BlueprintName = "evocadx-centroid"
+            BlueprintIdentifier = "4279E9C3189ADF4C0071EDCA"
+            BuildableName = "test-png"
+            BlueprintName = "test-png"
             ReferencedContainer = "container:evocadx.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

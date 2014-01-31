@@ -1,3 +1,4 @@
+import testing ;
 import os ;
 local HOME = [ os.environ HOME ] ;
 
@@ -10,6 +11,12 @@ exe evocadx-centroid :
     /boost//filesystem
     /boost//system
     : <link>static ;
+
+run test/test_png.cpp
+    src/png.cpp
+    /boost//unit_test_framework
+    : : : <include>./src
+    ;
 
 install dist : 
     evocadx-centroid

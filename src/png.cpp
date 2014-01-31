@@ -580,18 +580,6 @@ void load_file(std::vector<unsigned char>& buffer, const std::string& filename) 
     file.close();
 }
 
-// /* Test function*/
-// int main(int argc, char *argv[])
-// {
-//   long unsigned int threshold = 1000;
-//   png image = png(argc > 1 ? argv[1] : "test.png", true, threshold);
-//   std::cout << "Width: " << image.get_width() << " Height: " << image.get_height() << " First pixel: " << image[0]; 
-//   std:: cout << " Last pixel: " << image[image.get_width()*image.get_height() - 1] << std::endl;
-//   std::cout << "Distance of 1480, 1100 to centroid: " << image.distance_to_centroid(1480, 1100) << std::endl;
-//   return 0;
-// }
-
-
 /* Constructor for png class. Opens and loads specified file and stores pixel
  values, width, and height in new png object. Based on main() function from
  picopng. File must be a 16-bit greyscale png image.
@@ -608,6 +596,8 @@ png::png(const std::string& filename, bool weighted, value_type threshold) : _ce
     if (error) {
         throw std::runtime_error("png.cpp: decode error " + boost::lexical_cast<std::string>(error));
     }
+    
+    assert(pixels8b.size() == (_width*_height));
     
     // now convert the image to 16b:
     _pixels.reserve(pixels8b.size()/2);
@@ -646,7 +636,7 @@ unsigned long png::get_height() const {
 
 //! Returns the size of this image, in pixels.
 unsigned long png::size() const {
-    return _width * _height;
+    return _pixels.size();
 }
 
 unsigned long png::size1() const {
@@ -660,10 +650,12 @@ unsigned long png::size2() const {
 }
 
 png::value_type& png::operator[](std::size_t n) {
+    assert(n < _pixels.size());
     return _pixels[n];
 }
 
 const png::value_type& png::operator[](std::size_t n) const {
+    assert(n < _pixels.size());
     return _pixels[n];
 }
 

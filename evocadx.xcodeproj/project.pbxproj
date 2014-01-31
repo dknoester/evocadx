@@ -9,11 +9,23 @@
 /* Begin PBXBuildFile section */
 		4256FB121892D651004AB7F9 /* centroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4256FB101892D651004AB7F9 /* centroid.cpp */; };
 		4256FB141892D689004AB7F9 /* libea.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4256FB131892D689004AB7F9 /* libea.a */; };
+		4279E9D0189AE03A0071EDCA /* libboost_unit_test_framework.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4279E9CF189AE03A0071EDCA /* libboost_unit_test_framework.dylib */; };
+		4279E9D1189AE0790071EDCA /* test_png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4279E9BE189ADEB50071EDCA /* test_png.cpp */; };
+		4279E9D2189AE2D10071EDCA /* png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 42840BBF189811EB0005BBE4 /* png.cpp */; };
 		42840BC1189811EB0005BBE4 /* png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 42840BBF189811EB0005BBE4 /* png.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		4256FAFD1892D5EE004AB7F9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		4279E9C2189ADF4C0071EDCA /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -33,6 +45,10 @@
 		4256FB111892D651004AB7F9 /* evocadx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = evocadx.h; sourceTree = "<group>"; };
 		4256FB131892D689004AB7F9 /* libea.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libea.a; path = ../DerivedData/research/Build/Products/Debug/libea.a; sourceTree = "<group>"; };
 		4256FB161892D71F004AB7F9 /* ealib.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = ealib.cfg; sourceTree = "<group>"; };
+		4279E9BE189ADEB50071EDCA /* test_png.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_png.cpp; sourceTree = "<group>"; };
+		4279E9BF189ADEB50071EDCA /* test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test.h; sourceTree = "<group>"; };
+		4279E9C4189ADF4C0071EDCA /* test-png */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "test-png"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4279E9CF189AE03A0071EDCA /* libboost_unit_test_framework.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_unit_test_framework.dylib; path = /usr/local/lib/libboost_unit_test_framework.dylib; sourceTree = "<absolute>"; };
 		42840BBF189811EB0005BBE4 /* png.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = png.cpp; sourceTree = "<group>"; };
 		42840BC0189811EB0005BBE4 /* png.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = png.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -46,6 +62,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4279E9C1189ADF4C0071EDCA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4279E9D0189AE03A0071EDCA /* libboost_unit_test_framework.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -56,6 +80,7 @@
 				4256FB0D1892D651004AB7F9 /* Jamroot */,
 				4256FB151892D6BE004AB7F9 /* lib */,
 				4256FB0E1892D651004AB7F9 /* src */,
+				4279E9BD189ADEB50071EDCA /* test */,
 				4256FB001892D5EE004AB7F9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				4256FAFF1892D5EE004AB7F9 /* evocadx-centroid */,
+				4279E9C4189ADF4C0071EDCA /* test-png */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -92,9 +118,19 @@
 		4256FB151892D6BE004AB7F9 /* lib */ = {
 			isa = PBXGroup;
 			children = (
+				4279E9CF189AE03A0071EDCA /* libboost_unit_test_framework.dylib */,
 				4256FB131892D689004AB7F9 /* libea.a */,
 			);
 			name = lib;
+			sourceTree = "<group>";
+		};
+		4279E9BD189ADEB50071EDCA /* test */ = {
+			isa = PBXGroup;
+			children = (
+				4279E9BE189ADEB50071EDCA /* test_png.cpp */,
+				4279E9BF189ADEB50071EDCA /* test.h */,
+			);
+			path = test;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -115,6 +151,23 @@
 			name = "evocadx-centroid";
 			productName = "evocadx-centroid";
 			productReference = 4256FAFF1892D5EE004AB7F9 /* evocadx-centroid */;
+			productType = "com.apple.product-type.tool";
+		};
+		4279E9C3189ADF4C0071EDCA /* test-png */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4279E9CA189ADF4C0071EDCA /* Build configuration list for PBXNativeTarget "test-png" */;
+			buildPhases = (
+				4279E9C0189ADF4C0071EDCA /* Sources */,
+				4279E9C1189ADF4C0071EDCA /* Frameworks */,
+				4279E9C2189ADF4C0071EDCA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "test-png";
+			productName = test;
+			productReference = 4279E9C4189ADF4C0071EDCA /* test-png */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -139,6 +192,7 @@
 			projectRoot = "";
 			targets = (
 				4256FAFE1892D5EE004AB7F9 /* evocadx-centroid */,
+				4279E9C3189ADF4C0071EDCA /* test-png */,
 			);
 		};
 /* End PBXProject section */
@@ -150,6 +204,15 @@
 			files = (
 				4256FB121892D651004AB7F9 /* centroid.cpp in Sources */,
 				42840BC1189811EB0005BBE4 /* png.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4279E9C0189ADF4C0071EDCA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4279E9D2189AE2D10071EDCA /* png.cpp in Sources */,
+				4279E9D1189AE0790071EDCA /* test_png.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +253,28 @@
 			};
 			name = Release;
 		};
+		4279E9CB189ADF4C0071EDCA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/dk/Documents/repositories/research.hg/src/evocadx,
+				);
+				USER_HEADER_SEARCH_PATHS = src;
+			};
+			name = Debug;
+		};
+		4279E9CC189ADF4C0071EDCA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/dk/Documents/repositories/research.hg/src/evocadx,
+				);
+				USER_HEADER_SEARCH_PATHS = src;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -210,6 +295,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		4279E9CA189ADF4C0071EDCA /* Build configuration list for PBXNativeTarget "test-png" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4279E9CB189ADF4C0071EDCA /* Debug */,
+				4279E9CC189ADF4C0071EDCA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
