@@ -29,7 +29,7 @@ class png {
 public:
     typedef uint16_t value_type; //!< Value type for pixel data.
     typedef std::vector<uint16_t> pixel_vector_type; //<! Type for storing pixel data.
-    typedef std::pair<float, float> centroid_type; //<! Type for storing centroid.
+    typedef std::pair<double, double> centroid_type; //<! Type for storing centroid.
     
     //! Constructor.
     png(const std::string& filename, bool weighted=true, value_type threshold=1000);
@@ -56,7 +56,7 @@ public:
     const value_type& operator[](std::size_t n) const;
 
     //! Returns the distance of specified (x,y) coordinate to the centroid of this image.
-    float distance_to_centroid(std::size_t x, std::size_t y);
+    double distance_to_centroid(std::size_t x, std::size_t y);
     
 private:
     pixel_vector_type _pixels; //!< Pixel data.

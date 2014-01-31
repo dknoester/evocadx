@@ -24,12 +24,22 @@
 #include "test.h"
 #include "png.h"
 
-BOOST_AUTO_TEST_CASE(test_png) {
-    png image = png("/Users/dk/research/src/evocadx/test/test.png", true, 1000);
+BOOST_AUTO_TEST_CASE(test_png1) {
+    png image = png("/mnt/research/evocadx/testdata/test1.png", true, 1000);
     BOOST_CHECK_EQUAL(image.get_width(), 256);
     BOOST_CHECK_EQUAL(image.get_height(), 80);
     BOOST_CHECK_EQUAL(image.size(), 20480);
     BOOST_CHECK_EQUAL(image[0], 0);
-    BOOST_CHECK_EQUAL(image[image.get_width()*image.get_height() - 1], 65535);
-    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1722.5, 0.01);
+    BOOST_CHECK_EQUAL(image[image.get_width()*image.get_height() - 1], 65280);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1752.684, 0.01);
+}
+
+BOOST_AUTO_TEST_CASE(test_png2) {
+    png image = png("/mnt/research/evocadx/testdata/test2.png", true, 1000);
+    BOOST_CHECK_EQUAL(image.get_width(), 1914);
+    BOOST_CHECK_EQUAL(image.get_height(), 2294);
+    BOOST_CHECK_EQUAL(image.size(), 4390716);
+    BOOST_CHECK_EQUAL(image[0], 0);
+    BOOST_CHECK_EQUAL(image[image.get_width()*image.get_height() - 1], 0);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1844.017, 0.01);
 }

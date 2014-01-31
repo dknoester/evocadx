@@ -597,33 +597,37 @@ png::png(const std::string& filename, bool weighted, value_type threshold) : _ce
         throw std::runtime_error("png.cpp: decode error " + boost::lexical_cast<std::string>(error));
     }
     
-    assert(pixels8b.size() == (_width*_height));
+    // how many bytes per pixel?
+    int bpp = pixels8b.size() / (_width*_height);
+    assert(bpp >= 0);
+    assert(bpp <= sizeof(uint16_t)); // we only support up to 16b
     
-    // now convert the image to 16b:
-    _pixels.reserve(pixels8b.size()/2);
-    for(std::size_t i=0; i<(pixels8b.size()/2); ++i) {
-        _pixels.push_back((pixels8b[i*2] << 8) | pixels8b[i*2+1]);
+    // now convert the buffer to pixels:
+    _pixels.reserve(pixels8b.size()/bpp);
+    
+    for(std::size_t i=0; i<(pixels8b.size()/bpp); ++i) {
+        uint16_t t=0;
+        for(std::size_t j=(i*bpp), shift=(bpp*8); j<((i+1)*bpp); ++j, shift -= 8) {
+            t |= pixels8b[j] << shift;
+        }
+        _pixels.push_back(t);
     }
+    
+    assert(_pixels.size() == (_width*_height));
     
     // and calculate the centroid:
-    float x = 0;
-    float y = 0;
-    float n = 0;
-    for (int i=0; i<_pixels.size(); i++){
-        if (weighted){
-            //last term is whiteness/maximumWhiteness
-            x += (i%_width)*((float)(*this)[i]/65535.0);
-            y += (i/_width)*((float)(*this)[i]/65535.0);
-            n += _pixels[i] / 65535.0;
-        } else {
-            if (_pixels[i] > threshold) {
-                x += i%_width;
-                y += i/_width;
-                n++;
-            }
+    double x = 0;
+    double y = 0;
+    for(int i=0; i<_pixels.size(); i++) {
+        if(weighted){
+            x += static_cast<double>(_pixels[i])/65535.0 * (i%_width);
+            y += static_cast<double>(_pixels[i])/65535.0 * (i/_width);
+        } else if(_pixels[i] > threshold) {
+            x += i%_width;
+            y += i/_width;
         }
     }
-    _centroid = std::make_pair(x/n, y/n);
+    _centroid = std::make_pair(x/_pixels.size(), y/_pixels.size());
 }
 
 unsigned long png::get_width() const {
@@ -664,6 +668,6 @@ const png::value_type& png::operator[](std::size_t n) const {
  Optional weighted and theshold arguments get passed to the getCentroid()
  function.
  */
-float png::distance_to_centroid(std::size_t x, std::size_t y) {
+double png::distance_to_centroid(std::size_t x, std::size_t y) {
     return sqrt(pow((x - _centroid.first), 2) + pow((y - _centroid.second), 2));
 }
