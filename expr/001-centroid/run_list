@@ -8,4 +8,4 @@ set mem_request 2
 set config_dir config
 set max_cpus 30
 
-1..30 ta0 /mnt/home/dk/bin/evocadx-centroid --ea.rng.seed $seed
+1..30 ta0 /mnt/home/dk/bin/evocadx-centroid -c ealib.cfg --ea.rng.seed $seed

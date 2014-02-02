@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <string>
+#include <stdint.h>
 
 /*! This class loads a PNG and stores the pixel values and metadata in object form.
  */
@@ -35,10 +36,10 @@ public:
     png(const std::string& filename, bool weighted=true, value_type threshold=1000);
 
     //! Returns the width of this image, in pixels.
-    unsigned long get_width() const;
+    unsigned long width() const;
     
     //! Returns the height of this image, in pixels.
-    unsigned long get_height() const;
+    unsigned long height() const;
 
     //! Returns the size of this image, in pixels.
     unsigned long size() const;

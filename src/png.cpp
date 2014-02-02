@@ -19,7 +19,7 @@
  */
 #include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>
-#include <exception>
+#include <stdexcept>
 #include <fstream>
 #include <iostream>
 #include "png.h"
@@ -618,7 +618,7 @@ png::png(const std::string& filename, bool weighted, value_type threshold) : _ce
     // and calculate the centroid:
     double x = 0;
     double y = 0;
-    for(int i=0; i<_pixels.size(); i++) {
+    for(std::size_t i=0; i<_pixels.size(); i++) {
         if(weighted){
             x += static_cast<double>(_pixels[i])/65535.0 * (i%_width);
             y += static_cast<double>(_pixels[i])/65535.0 * (i/_width);
@@ -630,11 +630,11 @@ png::png(const std::string& filename, bool weighted, value_type threshold) : _ce
     _centroid = std::make_pair(x/_pixels.size(), y/_pixels.size());
 }
 
-unsigned long png::get_width() const {
+unsigned long png::width() const {
     return _width;
 }
 
-unsigned long png::get_height() const {
+unsigned long png::height() const {
     return _height;
 }
 

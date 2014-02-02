@@ -20,6 +20,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
+#include <algorithm>
+#include <iterator>
 #include <vector>
 #include <ea/mkv/markov_evolution_algorithm.h>
 #include <ea/mkv/sequence_matrix.h>
@@ -34,29 +36,55 @@ using namespace ealib;
 #include "evocadx.h"
 #include "png.h"
 
+typedef boost::shared_ptr<png> png_ptr_type;
+typedef std::vector<png_ptr_type> image_vector_type;
+typedef std::vector<std::string> filename_vector_type;
+
+//! Returns a vector of filenames matching regex r in a recursive search of directory d.
+filename_vector_type find_files(const std::string& d, const std::string& r) {
+    using namespace boost::filesystem;
+    filename_vector_type filenames;
+    boost::regex e(r);
+    recursive_directory_iterator i((path(d))); // the extra parens are needed to avoid the most vexing parse
+    recursive_directory_iterator end;
+    
+    for( ; i!=end; ++i) {
+        if(boost::filesystem::is_regular_file(*i)) {
+            std::string abspath=absolute(*i).string();
+            if(boost::regex_match(abspath,e)) {
+                filenames.push_back(abspath);
+            }
+        }
+    }
+    return filenames;
+}
+
+//! Analysis function that prints the list of image files that will be loaded.
+template <typename EA>
+struct evocadx_filenames : public ealib::analysis::unary_function<EA> {
+    static const char* name() { return "evocadx_filenames"; }
+    virtual ~evocadx_filenames() { }
+    virtual void operator()(EA& ea) {
+        std::cout << "Matching filenames:" << std::endl << "\t";
+        filename_vector_type filenames = find_files(get<EVOCADX_DATADIR>(ea), get<EVOCADX_FILE_REGEX>(ea));
+        std::copy(filenames.begin(), filenames.end(), std::ostream_iterator<std::string>(std::cout, "\n\t"));
+    }
+};
+
+
 /*! Image centroid fitness function for Markov networks.
  */
 struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, stochasticS> {
-    typedef boost::shared_ptr<png> png_ptr_type;
-    typedef std::vector<png_ptr_type> image_vector_type; //!< Type of vector of PNGs.
     
-    
-    /*! Initialize this fitness function -- load data, etc. */
+    //! Initializes this fitness function by loading the image files.
     template <typename RNG, typename EA>
     void initialize(RNG& rng, EA& ea) {
-        using namespace boost::filesystem;
-        boost::regex e(get<EVOCADX_FILE_REGEX>(ea));
-        recursive_directory_iterator i(path(get<EVOCADX_DATADIR>(ea)));
-        recursive_directory_iterator end;
-        
-        for( ; i!=end; ++i) {
-            if(boost::filesystem::is_regular_file(*i)) {
-                std::string abspath=absolute(*i).string();
-                if(boost::regex_match(abspath,e)) {
-                    png_ptr_type p(new png(abspath));
-                    _images.push_back(p);
-                }
-            }
+        filename_vector_type filenames = find_files(get<EVOCADX_DATADIR>(ea), get<EVOCADX_FILE_REGEX>(ea));
+        std::random_shuffle(filenames.begin(), filenames.end(), ea.rng());
+        int count=0;
+        for(filename_vector_type::iterator i=filenames.begin(); i!=filenames.end() && (count < get<EVOCADX_IMAGES_N>(ea)); ++i, ++count) {
+            png_ptr_type p(new png(*i));
+            _images.push_back(p);
         }
     }
     
@@ -69,8 +97,12 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
         typename EA::phenotype_type &N = ealib::phenotype(ind, ea);
         int seed=rng.seed();
         
-        // accumulated fitness:
-        double w=0.0;
+        // empty network guard:
+        if(N.ngates() == 0) {
+            return 0.0;
+        }
+        
+        double w=0.0; // accumulated fitness
         
         // and analyze images...
         for(int i=0; i<get<EVOCADX_EXAMINE_N>(ea); ++i) {
@@ -78,18 +110,20 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
             N.clear();
             
             matrix_type M(*_images[i]);
-            iterator_type ci(M, get<EVOCADX_RETINA_SIZE>(ea), get<EVOCADX_RETINA_SIZE>(ea));
+            iterator_type ci(M, get<EVOCADX_FOVEA_SIZE>(ea), get<EVOCADX_RETINA_SIZE>(ea));
             
             // move camera to ~middle of the image:
-            ci.position((M.size1()-get<EVOCADX_RETINA_SIZE>(ea)/2),
-                        (M.size2()-get<EVOCADX_RETINA_SIZE>(ea)/2));            
+            ci.position(M.size1()/2, M.size2()/2);
             
-            for(int j=0; j<get<EVOCADX_UPDATE_N>(ea); ++j) {
+            int updates = std::max(_images[i]->width(), _images[i]->height());
+            
+            for(int j=0; j<updates; ++j) {
                 N.update(ci);
                 ci.move(algorithm::bits2ternary(N.begin_output()), algorithm::bits2ternary(N.begin_output()+2));
             }
             
-            w += _images[i]->distance_to_centroid(ci._j, ci._i);
+            double d = _images[i]->distance_to_centroid(ci._j, ci._i);
+            w += d;
         }
         
         return 1.0 / (w + 1.0);
@@ -105,6 +139,20 @@ typedef markov_evolution_algorithm
 , generational_models::moran_process< >
 > ea_type;
 
+//! Randomly shuffles the list of images at the end of every update.
+template <typename EA>
+struct evocadx_shuffle_images : end_of_update_event<EA> {
+    evocadx_shuffle_images(EA& ea) : end_of_update_event<EA>(ea) { }
+    virtual ~evocadx_shuffle_images() { }
+    
+    virtual void operator()(EA& ea) {
+        std::random_shuffle(ea.fitness_function()._images.begin(),
+                            ea.fitness_function()._images.end(),
+                            ea.rng());
+    }
+};
+
+
 /*! Define the EA's command-line interface.
  */
 template <typename EA>
@@ -112,7 +160,6 @@ class cli : public cmdline_interface<EA> {
 public:
     virtual void gather_options() {
         mkv::add_options(this);
-        
         add_option<POPULATION_SIZE>(this);
         add_option<MORAN_REPLACEMENT_RATE_P>(this);
         add_option<RUN_UPDATES>(this);
@@ -123,17 +170,27 @@ public:
         
         add_option<EVOCADX_DATADIR>(this);
         add_option<EVOCADX_FILE_REGEX>(this);
+        add_option<EVOCADX_IMAGES_N>(this);
         add_option<EVOCADX_EXAMINE_N>(this);
-        add_option<EVOCADX_UPDATE_N>(this);
+        add_option<EVOCADX_FOVEA_SIZE>(this);
         add_option<EVOCADX_RETINA_SIZE>(this);
     }
     
-    
     virtual void gather_tools() {
+        add_tool<evocadx_filenames>(this);
     }
     
     virtual void gather_events(EA& ea) {
         add_event<datafiles::fitness_dat>(ea);
+        add_event<evocadx_shuffle_images>(ea);
     };
+    
+    virtual void before_initialization(EA& ea) {
+        using namespace ealib::mkv;
+        put<MKV_INPUT_N>(8*get<EVOCADX_RETINA_SIZE>(ea) + get<EVOCADX_FOVEA_SIZE>(ea)*get<EVOCADX_FOVEA_SIZE>(ea), ea);
+        
+        ea.config().disable(PROBABILISTIC);
+        ea.config().disable(ADAPTIVE);
+    }
 };
 LIBEA_CMDLINE_INSTANCE(ea_type, cli);
