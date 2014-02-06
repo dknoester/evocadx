@@ -27,6 +27,7 @@
 #include <ea/mkv/sequence_matrix.h>
 #include <ea/mkv/camera.h>
 #include <ea/generational_models/moran_process.h>
+#include <ea/selection/elitism.h>
 #include <ea/fitness_function.h>
 #include <ea/cmdline_interface.h>
 #include <ea/datafiles/fitness.h>
@@ -136,7 +137,7 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
 typedef markov_evolution_algorithm
 < centroid_fitness
 , recombination::asexual
-, generational_models::moran_process< >
+, generational_models::moran_process<selection::proportionate< >, selection::elitism<selection::random> >
 > ea_type;
 
 //! Randomly shuffles the list of images at the end of every update.
@@ -167,7 +168,8 @@ public:
         add_option<CHECKPOINT_PREFIX>(this);
         add_option<RNG_SEED>(this);
         add_option<RECORDING_PERIOD>(this);
-        
+        add_option<ELITISM_N>(this);
+
         add_option<EVOCADX_DATADIR>(this);
         add_option<EVOCADX_FILE_REGEX>(this);
         add_option<EVOCADX_IMAGES_N>(this);
