@@ -83,7 +83,7 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
         std::random_shuffle(filenames.begin(), filenames.end(), ea.rng());
         int count=0;
         for(filename_vector_type::iterator i=filenames.begin(); i!=filenames.end() && (count < get<EVOCADX_IMAGES_N>(ea)); ++i, ++count) {
-            png_ptr_type p(new png(*i));
+            png_ptr_type p(new png(*i, false, 1000)); // not weighted, threshold == 1000; this turns the image into black & white.
             _images.push_back(p);
         }
     }

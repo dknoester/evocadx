@@ -63,6 +63,7 @@ private:
     pixel_vector_type _pixels; //!< Pixel data.
     unsigned long _width; //!< Width of image in pixels.
     unsigned long _height; //<! Height of image in pixels.
+    value_type _threshold; //!< Value below which pixels are set to 0.
     centroid_type _centroid; //!< Centroid of the image.
 };
 

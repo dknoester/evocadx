@@ -43,3 +43,13 @@ BOOST_AUTO_TEST_CASE(test_png2) {
     BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], 0);
     BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1844.017, 0.01);
 }
+
+BOOST_AUTO_TEST_CASE(test_png3) {
+    png image = png("/mnt/research/evocadx/testdata/test1.png", false, 1000);
+    BOOST_CHECK_EQUAL(image.width(), 256u);
+    BOOST_CHECK_EQUAL(image.height(), 80u);
+    BOOST_CHECK_EQUAL(image.size(), 20480u);
+    BOOST_CHECK_EQUAL(image[0], 0);
+    BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], std::numeric_limits<png::value_type>::max());
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1718.696, 0.01);
+}

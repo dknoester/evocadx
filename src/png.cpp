@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include "png.h"
 
 /* ------Helper functions for constructor------*/
@@ -584,7 +585,7 @@ void load_file(std::vector<unsigned char>& buffer, const std::string& filename) 
  values, width, and height in new png object. Based on main() function from
  picopng. File must be a 16-bit greyscale png image.
  */
-png::png(const std::string& filename, bool weighted, value_type threshold) : _centroid(0.0, 0.0) {
+png::png(const std::string& filename, bool weighted, value_type threshold) : _threshold(threshold), _centroid(0.0, 0.0) {
     std::vector<unsigned char> buffer;
     load_file(buffer, filename);
     if(buffer.empty()) {
@@ -615,14 +616,18 @@ png::png(const std::string& filename, bool weighted, value_type threshold) : _ce
     
     assert(_pixels.size() == (_width*_height));
     
-    // and calculate the centroid:
+    // calculate the centroid and threshold the pixels:
     double x = 0;
     double y = 0;
     for(std::size_t i=0; i<_pixels.size(); i++) {
+        if(_pixels[i] < _threshold) {
+            _pixels[i] = 0;
+        }
         if(weighted){
             x += static_cast<double>(_pixels[i])/65535.0 * (i%_width);
             y += static_cast<double>(_pixels[i])/65535.0 * (i/_width);
-        } else if(_pixels[i] > threshold) {
+        } else if(_pixels[i] >= _threshold) {
+            _pixels[i] = std::numeric_limits<value_type>::max();
             x += i%_width;
             y += i/_width;
         }
