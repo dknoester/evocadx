@@ -18,3 +18,5 @@ tmp
 DerivedData
 build
 dist
+*.pyc
+var

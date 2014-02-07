@@ -124,6 +124,8 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
             }
             
             double d = _images[i]->distance_to_centroid(ci._j, ci._i);
+            // normalize d by the length of the diagonal:
+            d /= sqrt(_images[i]->width()*_images[i]->width() + _images[i]->height()*_images[i]->height());
             w += d;
         }
         
