@@ -12,4 +12,7 @@ set max_cpus 30
 # 1..30 ta0 /mnt/home/dk/bin/evocadx-centroid -c ealib.cfg --ea.rng.seed $seed
 
 # normalized
-1..30 tb0 /mnt/home/dk/bin/evocadx-centroid -c ealib.cfg --ea.rng.seed $seed
+#1..30 tb0 /mnt/home/dk/bin/evocadx-centroid -c ealib.cfg --ea.rng.seed $seed
+
+#running for 50k updates
+1..30 tc0 /mnt/home/dk/bin/evocadx-centroid -c ealib.cfg --ea.rng.seed $seed
