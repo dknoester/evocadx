@@ -23,7 +23,6 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
-#include <gd.h>
 
 /*! This class loads a PNG and stores the pixel values and metadata in object form.
  */

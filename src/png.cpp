@@ -368,7 +368,7 @@ int decode_png(std::vector<unsigned char>& out_image, unsigned long& image_width
                 pos += 4; //step over CRC (which is ignored)
             }
 
-            unsigned int bpp = getBpp(info);
+            unsigned long bpp = getBpp(info);
             std::vector<unsigned char> scanlines(((info.width * (info.height * bpp + 7)) / 8) + info.height); //now the out buffer will be filled
             Zlib zlib; //decompress with the Zlib decompressor
             error = zlib.decompress(scanlines, idat); if(error) return; //stop if the zlib decompressor returned an error
