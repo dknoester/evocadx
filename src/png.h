@@ -23,12 +23,14 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
+#include <gd.h>
 
 /*! This class loads a PNG and stores the pixel values and metadata in object form.
  */
 class png {
 public:
     typedef uint16_t value_type; //!< Value type for pixel data.
+    typedef std::vector<double> histogram_vector_type; //<! Type for storing histograms.
     typedef std::vector<uint16_t> pixel_vector_type; //<! Type for storing pixel data.
     typedef std::pair<double, double> centroid_type; //<! Type for storing centroid.
     
@@ -50,6 +52,15 @@ public:
     //! Returns the number of columns (when treating this image as a matrix).
     unsigned long size2() const;
     
+    //! Returns the number of bytes per pixel.
+    unsigned long get_bpp() const;
+    
+    //! Returns the image centoid
+    centroid_type& get_centroid();
+
+    //! Returns the image centoid
+    bool write_pgm(const std::string& outfilename);
+
     //! Returns the 16b value of the n'th pixel.
     value_type& operator[](std::size_t n);
 
@@ -61,6 +72,7 @@ public:
     
 private:
     pixel_vector_type _pixels; //!< Pixel data.
+    unsigned int _bpp; //!< Bytes per pixel.
     unsigned long _width; //!< Width of image in pixels.
     unsigned long _height; //<! Height of image in pixels.
     value_type _threshold; //!< Value below which pixels are set to 0.

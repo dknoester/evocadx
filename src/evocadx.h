@@ -24,6 +24,7 @@
 
 LIBEA_MD_DECL(EVOCADX_DATADIR, "evocadx.data_directory", std::string);
 LIBEA_MD_DECL(EVOCADX_FILE_REGEX, "evocadx.file_regex", std::string);
+LIBEA_MD_DECL(EVOCADX_DUMP_IMAGES_DIR, "evocadx.dump_images_dir", std::string);
 LIBEA_MD_DECL(EVOCADX_IMAGES_N, "evocadx.images_n", int);
 LIBEA_MD_DECL(EVOCADX_EXAMINE_N, "evocadx.examine_n", int);
 LIBEA_MD_DECL(EVOCADX_FOVEA_SIZE, "evocadx.fovea_size", std::size_t);
