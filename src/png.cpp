@@ -665,31 +665,33 @@ png::png(const std::string& filename, bool weighted, value_type threshold) : _th
     
     assert(_pixels.size() == (_width*_height));
 
-    // Find minimum and maximum pixel values and histogram
-    int totcnt = 0;
-    histogram_vector_type histo(65536,0.0);
-    for (std::size_t i=0; i<_pixels.size(); i++) {
-      int idx = _pixels[i];
-      histo[idx] += 1.0;
-      totcnt++;
-    }
+    // If the threshold was not specified then calculate the
+    // threshold based on a histogram analysis heuristic.
+    if (_threshold <= 0) { 
+      int totcnt = 0;
+      histogram_vector_type histo(65536,0.0);
+      for (std::size_t i=0; i<_pixels.size(); i++) {
+        int idx = _pixels[i];
+        histo[idx] += 1.0;
+        totcnt++;
+      }
 
-    for (std::size_t i=0; i < histo.size(); i++) {
-      histo[i] = histo[i] / totcnt;
-    }
+      for (std::size_t i=0; i < histo.size(); i++) {
+        histo[i] = histo[i] / totcnt;
+      }
  
-    // Find threshold
-    int threshpos = 0;
-    double sum = 0.0;
-    int minpart = histo.size() * 0.15;
-    for (std::size_t i = histo.size()-1; i >= minpart; i--) {
-      sum += histo[i];
-      threshpos = i;
-      if (sum > 0.4) break;
-    }
+      // Find threshold
+      int threshpos = 0;
+      double sum = 0.0;
+      int minpart = histo.size() * 0.15;
+      for (std::size_t i = histo.size()-1; i >= minpart; i--) {
+        sum += histo[i];
+        threshpos = i;
+        if (sum > 0.4) break;
+      }
 
-    //_threshold = 256.0 * (threshpos+1); 
-    _threshold = threshpos; 
+      _threshold = threshpos; 
+    }
 
     // std::cout << filename << std::endl; 
     // std::cout << "Threshold: " << _threshold << " " << threshpos << " " << sum << std::endl;
