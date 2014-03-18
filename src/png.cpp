@@ -631,7 +631,7 @@ void load_file(std::vector<unsigned char>& buffer, const std::string& filename) 
  values, width, and height in new png object. Based on main() function from
  picopng. File must be a 16-bit greyscale png image.
  */
-png::png(const std::string& filename, bool weighted, value_type threshold) : _threshold(threshold), _centroid(0.0, 0.0) {
+png::png(const std::string& filename, bool weighted, value_type threshold,unsigned int downscale_fact) : _threshold(threshold), _centroid(0.0, 0.0) {
     _bpp = 0;
     std::vector<unsigned char> buffer;
     load_file(buffer, filename);
@@ -664,6 +664,8 @@ png::png(const std::string& filename, bool weighted, value_type threshold) : _th
     }
     
     assert(_pixels.size() == (_width*_height));
+
+    downscale(downscale_fact);
 
     // If the threshold was not specified then calculate the
     // threshold based on a histogram analysis heuristic.
@@ -717,6 +719,7 @@ png::png(const std::string& filename, bool weighted, value_type threshold) : _th
           }
         }
     }
+
     //_centroid = std::make_pair(x/_pixels.size(), y/_pixels.size());
     _centroid = std::make_pair(x/pixcnt, y/pixcnt);
 }
@@ -756,6 +759,75 @@ png::value_type& png::operator[](std::size_t n) {
 const png::value_type& png::operator[](std::size_t n) const {
     assert(n < _pixels.size());
     return _pixels[n];
+}
+
+void png::downscale(std::size_t dfact) {
+    if (dfact <= 1) return;
+
+    int nx = _width / dfact;
+    int ny = _height / dfact;
+    int stridex = _width / nx;
+    int stridey = _height / ny;
+    int startx = stridex / 2;
+    int starty = stridey / 2; 
+    int endx = stridex * (nx-1) + startx;
+    int endy = stridey * (ny-1) + starty;
+    std::vector<float> filt(dfact*dfact);
+
+    // Construct a tringular approximation of the sinc filter using
+    // poor-man's convolution.
+    float halfp = (float)(dfact+2) / 2.0; 
+    float slope = 1.0/halfp; 
+    for (int y = 0; y < dfact; y++) {
+      for (int x = 0; x < dfact; x++) {
+        if ((x+1) <= halfp) filt[(y*dfact)+x] = slope * (x+1);
+        else filt[(y*dfact)+x] = slope * (halfp - (x+1) + halfp);
+        if ((y+1) <= halfp) filt[(y*dfact)+x] *= slope * (y+1);
+        else filt[(y*dfact)+x] *= slope * (halfp - (y+1) + halfp);
+      }
+    }
+
+    pixel_vector_type newpix(nx*ny);
+    newpix.reserve(nx*ny);
+
+    int newxy = 0;
+    int pixsum = 0;
+    for (int y = starty; y <= endy; y+=stridey) {
+      for (int x = startx; x <= endx; x+=stridex) {
+         int xs = x - (dfact/2);
+         int ys = y - (dfact/2);
+         int xe = xs + dfact;
+         int ye = ys + dfact;
+         if (xs < 0) xs = 0;
+         if (ys < 0) ys = 0;
+         if (xe > _width) xe = _width;
+         if (ye > _height) ye = _height;
+
+         int pixcnt = 0; 
+         for (int wy = ys; wy < ye; wy++) {
+           for (int wx = xs; wx < xe; wx++) {
+             int xy = (wy * _width) + wx;
+             float fval = filt[((wy-ys)*dfact)+(wx-xs)];
+             pixsum += _pixels[xy] * fval; 
+             pixcnt++;
+           }
+         } 
+
+        // newpix[newxy] = roundf((float)pixsum/(float)pixcnt); 
+        newpix[newxy] = _pixels[(y * _width)+x];
+        newxy++;
+      }
+    }
+
+   _pixels.clear();
+   _pixels.reserve(newpix.size());
+   _pixels.resize(newpix.size());
+   for (int i = 0; i < newpix.size(); i++) {
+     _pixels[i] = newpix[i];  
+   }
+
+   _width = nx;
+   _height = ny;
 }
 
 /* Takes ints representing x and y coordinates of a pixel and returns

@@ -86,7 +86,8 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
         int count=0;
         for(filename_vector_type::iterator i=filenames.begin(); i!=filenames.end() && (count < get<EVOCADX_IMAGES_N>(ea)); ++i, ++count) {
             value_type threshold = get<EVOCADX_PIXEL_THRESHOLD>(ea);
-            png_ptr_type p(new png(*i, false, threshold)); // not weighted, threshold == 0 (implies calculate the threshold); this turns the image into black & white.
+            unsigned int downscalefact = get<EVOCADX_IMAGE_DOWNSCALE_FACTOR>(ea);
+            png_ptr_type p(new png(*i, false, threshold, downscalefact)); // not weighted, threshold == 0 (implies calculate the threshold); this turns the image into black & white.
             _images.push_back(p);
 
             std::string imgdir = get<EVOCADX_DUMP_IMAGES_DIR>(ea);
@@ -200,6 +201,7 @@ public:
         add_option<EVOCADX_FOVEA_SIZE>(this);
         add_option<EVOCADX_RETINA_SIZE>(this);
         add_option<EVOCADX_PIXEL_THRESHOLD>(this);
+        add_option<EVOCADX_IMAGE_DOWNSCALE_FACTOR>(this);
     }
     
     virtual void gather_tools() {

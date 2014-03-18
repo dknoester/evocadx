@@ -34,7 +34,7 @@ public:
     typedef std::pair<double, double> centroid_type; //<! Type for storing centroid.
     
     //! Constructor.
-    png(const std::string& filename, bool weighted=true, value_type threshold=1000);
+    png(const std::string& filename, bool weighted=true, value_type threshold=1000,unsigned int downscale_fact=0);
 
     //! Returns the width of this image, in pixels.
     unsigned long width() const;
@@ -59,6 +59,9 @@ public:
 
     //! Returns the image centoid
     bool write_pgm(const std::string& outfilename);
+
+    //! Downscale this image into a binary image
+    void downscale(std::size_t dfact);
 
     //! Returns the 16b value of the n'th pixel.
     value_type& operator[](std::size_t n);
