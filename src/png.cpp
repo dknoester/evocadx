@@ -686,7 +686,7 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
       int threshpos = 0;
       double sum = 0.0;
       int minpart = histo.size() * 0.15;
-      for (std::size_t i = histo.size()-1; i >= minpart; i--) {
+      for (int i = (int)histo.size()-1; i >= minpart; i--) {
         sum += histo[i];
         threshpos = i;
         if (sum > 0.4) break;
@@ -715,8 +715,8 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
               _pixels[i] = std::numeric_limits<value_type>::max();
               x += i%_width;
               y += i/_width;
-              pixcnt++;
           }
+          pixcnt++;
         }
     }
 
@@ -778,8 +778,8 @@ void png::downscale(std::size_t dfact) {
     // poor-man's convolution.
     float halfp = (float)(dfact+2) / 2.0; 
     float slope = 1.0/halfp; 
-    for (int y = 0; y < dfact; y++) {
-      for (int x = 0; x < dfact; x++) {
+    for (int y = 0; y < (int)dfact; y++) {
+      for (int x = 0; x < (int)dfact; x++) {
         if ((x+1) <= halfp) filt[(y*dfact)+x] = slope * (x+1);
         else filt[(y*dfact)+x] = slope * (halfp - (x+1) + halfp);
         if ((y+1) <= halfp) filt[(y*dfact)+x] *= slope * (y+1);
@@ -800,8 +800,8 @@ void png::downscale(std::size_t dfact) {
          int ye = ys + dfact;
          if (xs < 0) xs = 0;
          if (ys < 0) ys = 0;
-         if (xe > _width) xe = _width;
-         if (ye > _height) ye = _height;
+         if (xe > (int)_width) xe = _width;
+         if (ye > (int)_height) ye = _height;
 
          int pixcnt = 0; 
          for (int wy = ys; wy < ye; wy++) {
@@ -822,7 +822,7 @@ void png::downscale(std::size_t dfact) {
    _pixels.clear();
    _pixels.reserve(newpix.size());
    _pixels.resize(newpix.size());
-   for (int i = 0; i < newpix.size(); i++) {
+   for (int i = 0; i < (int)newpix.size(); i++) {
      _pixels[i] = newpix[i];  
    }
 
