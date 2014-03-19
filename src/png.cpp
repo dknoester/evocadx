@@ -665,7 +665,7 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
     
     assert(_pixels.size() == (_width*_height));
 
-    downscale(downscale_fact);
+    downscale(downscale_fact,false);
 
     // If the threshold was not specified then calculate the
     // threshold based on a histogram analysis heuristic.
@@ -761,7 +761,7 @@ const png::value_type& png::operator[](std::size_t n) const {
     return _pixels[n];
 }
 
-void png::downscale(std::size_t dfact) {
+void png::downscale(std::size_t dfact,bool use_filter) {
     if (dfact <= 1) return;
 
     int nx = _width / dfact;
@@ -776,14 +776,16 @@ void png::downscale(std::size_t dfact) {
 
     // Construct a tringular approximation of the sinc filter using
     // poor-man's convolution.
-    float halfp = (float)(dfact+2) / 2.0; 
-    float slope = 1.0/halfp; 
-    for (int y = 0; y < (int)dfact; y++) {
-      for (int x = 0; x < (int)dfact; x++) {
-        if ((x+1) <= halfp) filt[(y*dfact)+x] = slope * (x+1);
-        else filt[(y*dfact)+x] = slope * (halfp - (x+1) + halfp);
-        if ((y+1) <= halfp) filt[(y*dfact)+x] *= slope * (y+1);
-        else filt[(y*dfact)+x] *= slope * (halfp - (y+1) + halfp);
+    if (use_filter) {
+      float halfp = (float)(dfact+2) / 2.0; 
+      float slope = 1.0/halfp; 
+      for (int y = 0; y < (int)dfact; y++) {
+        for (int x = 0; x < (int)dfact; x++) {
+          if ((x+1) <= halfp) filt[(y*dfact)+x] = slope * (x+1);
+          else filt[(y*dfact)+x] = slope * (halfp - (x+1) + halfp);
+          if ((y+1) <= halfp) filt[(y*dfact)+x] *= slope * (y+1);
+          else filt[(y*dfact)+x] *= slope * (halfp - (y+1) + halfp);
+        }
       }
     }
 
@@ -791,30 +793,34 @@ void png::downscale(std::size_t dfact) {
     newpix.reserve(nx*ny);
 
     int newxy = 0;
-    int pixsum = 0;
     for (int y = starty; y <= endy; y+=stridey) {
       for (int x = startx; x <= endx; x+=stridex) {
-         int xs = x - (dfact/2);
-         int ys = y - (dfact/2);
-         int xe = xs + dfact;
-         int ye = ys + dfact;
-         if (xs < 0) xs = 0;
-         if (ys < 0) ys = 0;
-         if (xe > (int)_width) xe = _width;
-         if (ye > (int)_height) ye = _height;
+         if (use_filter) {
+           int xs = x - (dfact/2);
+           int ys = y - (dfact/2);
+           int xe = xs + dfact;
+           int ye = ys + dfact;
+           if (xs < 0) xs = 0;
+           if (ys < 0) ys = 0;
+           if (xe > (int)_width) xe = _width;
+           if (ye > (int)_height) ye = _height;
+  
+           int pixcnt = 0; 
+           int pixsum = 0;
+           for (int wy = ys; wy < ye; wy++) {
+             for (int wx = xs; wx < xe; wx++) {
+               int xy = (wy * _width) + wx;
+               float fval = filt[((wy-ys)*dfact)+(wx-xs)];
+               pixsum += _pixels[xy] * fval; 
+               pixcnt++;
+             }
+           } 
+  
+          newpix[newxy] = roundf((float)pixsum/(float)pixcnt); 
+        } else {
+          newpix[newxy] = _pixels[(y * _width)+x];
+        }
 
-         int pixcnt = 0; 
-         for (int wy = ys; wy < ye; wy++) {
-           for (int wx = xs; wx < xe; wx++) {
-             int xy = (wy * _width) + wx;
-             float fval = filt[((wy-ys)*dfact)+(wx-xs)];
-             pixsum += _pixels[xy] * fval; 
-             pixcnt++;
-           }
-         } 
-
-        // newpix[newxy] = roundf((float)pixsum/(float)pixcnt); 
-        newpix[newxy] = _pixels[(y * _width)+x];
         newxy++;
       }
     }

@@ -61,7 +61,7 @@ public:
     bool write_pgm(const std::string& outfilename);
 
     //! Downscale this image into a binary image
-    void downscale(std::size_t dfact);
+    void downscale(std::size_t dfact,bool use_filter=false);
 
     //! Returns the 16b value of the n'th pixel.
     value_type& operator[](std::size_t n);
