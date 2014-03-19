@@ -24,9 +24,12 @@
 
 LIBEA_MD_DECL(EVOCADX_DATADIR, "evocadx.data_directory", std::string);
 LIBEA_MD_DECL(EVOCADX_FILE_REGEX, "evocadx.file_regex", std::string);
+LIBEA_MD_DECL(EVOCADX_DUMP_IMAGES_DIR, "evocadx.dump_images_dir", std::string);
 LIBEA_MD_DECL(EVOCADX_IMAGES_N, "evocadx.images_n", int);
 LIBEA_MD_DECL(EVOCADX_EXAMINE_N, "evocadx.examine_n", int);
 LIBEA_MD_DECL(EVOCADX_FOVEA_SIZE, "evocadx.fovea_size", std::size_t);
 LIBEA_MD_DECL(EVOCADX_RETINA_SIZE, "evocadx.retina_size", std::size_t);
+LIBEA_MD_DECL(EVOCADX_PIXEL_THRESHOLD, "evocadx.pixel_threshold", unsigned int);
+LIBEA_MD_DECL(EVOCADX_IMAGE_DOWNSCALE_FACTOR, "evocadx.image_downscale_factor", unsigned int);
 
 #endif

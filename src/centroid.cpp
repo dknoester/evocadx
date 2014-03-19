@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <libgen.h>
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
@@ -84,8 +85,28 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
         std::random_shuffle(filenames.begin(), filenames.end(), ea.rng());
         int count=0;
         for(filename_vector_type::iterator i=filenames.begin(); i!=filenames.end() && (count < get<EVOCADX_IMAGES_N>(ea)); ++i, ++count) {
-            png_ptr_type p(new png(*i, false, 1000)); // not weighted, threshold == 1000; this turns the image into black & white.
+            value_type threshold = get<EVOCADX_PIXEL_THRESHOLD>(ea);
+            unsigned int downscalefact = get<EVOCADX_IMAGE_DOWNSCALE_FACTOR>(ea);
+            png_ptr_type p(new png(*i, false, threshold, downscalefact)); // not weighted, threshold == 0 (implies calculate the threshold); this turns the image into black & white.
             _images.push_back(p);
+
+            std::string imgdir = get<EVOCADX_DUMP_IMAGES_DIR>(ea);
+            if (imgdir.length() > 0) {
+              std::string wrkstr = (*i);
+              std::string outfn = imgdir;
+              if (outfn[outfn.length()-1] != '/') outfn += "/";
+              outfn = outfn + basename((char*)(wrkstr.c_str()));
+              int pos = outfn.rfind(".png");
+              if (pos < outfn.length()) {
+                outfn.replace(pos,4,".pgm");
+              }
+
+              if (!p->write_pgm(outfn)) {
+                std::cerr << "*** ERROR: failed to dump image to " << outfn << std::endl;
+                exit(-1);
+              }
+              //std::cout << outfn << std::endl;
+            }
         }
     }
     
@@ -174,10 +195,13 @@ public:
 
         add_option<EVOCADX_DATADIR>(this);
         add_option<EVOCADX_FILE_REGEX>(this);
+        add_option<EVOCADX_DUMP_IMAGES_DIR>(this);
         add_option<EVOCADX_IMAGES_N>(this);
         add_option<EVOCADX_EXAMINE_N>(this);
         add_option<EVOCADX_FOVEA_SIZE>(this);
         add_option<EVOCADX_RETINA_SIZE>(this);
+        add_option<EVOCADX_PIXEL_THRESHOLD>(this);
+        add_option<EVOCADX_IMAGE_DOWNSCALE_FACTOR>(this);
     }
     
     virtual void gather_tools() {
