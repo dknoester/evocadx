@@ -22,34 +22,86 @@
 #endif
 #define BOOST_TEST_MAIN
 #include "test.h"
-#include "png.h"
+#include "../src/png.h"
 
-BOOST_AUTO_TEST_CASE(test_png1) {
-    png image = png("/mnt/research/evocadx/testdata/test1.png", true, 1000);
-    BOOST_CHECK_EQUAL(image.width(), 256u);
-    BOOST_CHECK_EQUAL(image.height(), 80u);
-    BOOST_CHECK_EQUAL(image.size(), 20480u);
-    BOOST_CHECK_EQUAL(image[0], 0);
-    BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], 65280);
-    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1752.684, 0.01);
+#define PNG1 "../testdata/test1.png"
+#define PNG2 "../testdata/test2.png"
+// #define PNG1 "/mnt/research/evocadx/testdata/test1.png"
+// #define PNG2 "/mnt/research/evocadx/testdata/test2.png"
+
+BOOST_AUTO_TEST_CASE(test_png1_size) {
+    png image = png(PNG1, true, 0, 0);
+    // image.write_pgm("test1.pgm");
+    BOOST_CHECK_EQUAL(image.width(), 2669u);
+    BOOST_CHECK_EQUAL(image.height(), 5114u);
+    BOOST_CHECK_EQUAL(image.size(), 13649266u);
 }
 
-BOOST_AUTO_TEST_CASE(test_png2) {
-    png image = png("/mnt/research/evocadx/testdata/test2.png", true, 1000);
-    BOOST_CHECK_EQUAL(image.width(), 1914u);
-    BOOST_CHECK_EQUAL(image.height(), 2294u);
-    BOOST_CHECK_EQUAL(image.size(), 4390716u);
-    BOOST_CHECK_EQUAL(image[0], 0);
-    BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], 0);
-    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1844.017, 0.01);
+BOOST_AUTO_TEST_CASE(test_png2_size) {
+    png image = png(PNG2, true, 0, 0);
+    // image.write_pgm("test2.pgm");  
+    BOOST_CHECK_EQUAL(image.width(), 2444u);
+    BOOST_CHECK_EQUAL(image.height(), 4574u);
+    BOOST_CHECK_EQUAL(image.size(), 11178856u);
 }
 
-BOOST_AUTO_TEST_CASE(test_png3) {
-    png image = png("/mnt/research/evocadx/testdata/test1.png", false, 1000);
-    BOOST_CHECK_EQUAL(image.width(), 256u);
-    BOOST_CHECK_EQUAL(image.height(), 80u);
-    BOOST_CHECK_EQUAL(image.size(), 20480u);
-    BOOST_CHECK_EQUAL(image[0], 0);
-    BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], std::numeric_limits<png::value_type>::max());
-    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1718.696, 0.01);
+BOOST_AUTO_TEST_CASE(test_png1_pixels_weighted) {
+    png image = png(PNG1, true, 0, 0);
+    BOOST_CHECK_EQUAL(image[0], 11436u);
+    BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], 22301u);
 }
+
+BOOST_AUTO_TEST_CASE(test_png2_pixels_weighted) {
+    png image = png(PNG2, true, 0, 0);
+    BOOST_CHECK_EQUAL(image[0], 50589u);
+    BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], 2962u);
+}
+
+BOOST_AUTO_TEST_CASE(test_png1_pixels_unweighted) {
+    png image = png(PNG1, false, 0, 0);
+    BOOST_CHECK_EQUAL(image[0], 0u);
+    BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], 0u);
+}
+
+BOOST_AUTO_TEST_CASE(test_png2_pixels_unweighted) {
+    png image = png(PNG2, false, 0, 0);
+    BOOST_CHECK_EQUAL(image[0], std::numeric_limits<png::value_type>::max());
+    BOOST_CHECK_EQUAL(image[image.width()*image.height() - 1], 0u);
+}
+
+BOOST_AUTO_TEST_CASE(test_png1_centroid_thresh) {
+    png image = png(PNG1, false, 0, 0);
+    png::centroid_type cent = image.get_centroid();
+    BOOST_CHECK_CLOSE(cent.first, 1894.13, 0.01);
+    BOOST_CHECK_CLOSE(cent.second, 2431.93, 0.01);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1394.826578, 0.01);
+}
+
+BOOST_AUTO_TEST_CASE(test_png2_centroid_thresh) {
+    png image = png(PNG2, false, 0, 0);
+    png::centroid_type cent = image.get_centroid();
+    BOOST_CHECK_CLOSE(cent.first, 698.737, 0.01);
+    BOOST_CHECK_CLOSE(cent.second, 2268.53, 0.01);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(1200,1600), 835.581807, 0.01);
+}
+
+BOOST_AUTO_TEST_CASE(test_png1_centroid_downscale) {
+    png image = png(PNG1, false, 0, 4);
+    BOOST_CHECK_EQUAL(image.width(), 667u);
+    BOOST_CHECK_EQUAL(image.height(), 1278u);
+    png::centroid_type cent = image.get_centroid();
+    BOOST_CHECK_CLOSE(cent.first, 473.025, 0.01);
+    BOOST_CHECK_CLOSE(cent.second, 607.872, 0.01);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(201,305), 407.098328, 0.01);
+}
+
+BOOST_AUTO_TEST_CASE(test_png2_centroid_downscale) {
+    png image = png(PNG2, false, 0, 4);
+    BOOST_CHECK_EQUAL(image.width(), 611u);
+    BOOST_CHECK_EQUAL(image.height(), 1143u);
+    png::centroid_type cent = image.get_centroid();
+    BOOST_CHECK_CLOSE(cent.first, 174.253, 0.01);
+    BOOST_CHECK_CLOSE(cent.second, 566.591, 0.01);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(400,808), 330.514770, 0.01);
+}
+

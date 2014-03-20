@@ -665,11 +665,11 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
     
     assert(_pixels.size() == (_width*_height));
 
-    downscale(downscale_fact,false);
+    downscale(downscale_fact,true);
 
     // If the threshold was not specified then calculate the
     // threshold based on a histogram analysis heuristic.
-    if (_threshold <= 0) { 
+    if ((_threshold <= 0)&&(!weighted)) { 
       int totcnt = 0;
       histogram_vector_type histo(65536,0.0);
       for (std::size_t i=0; i<_pixels.size(); i++) {
@@ -705,18 +705,20 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
     for(std::size_t i=0; i<_pixels.size(); i++) {
         float pv = _pixels[i];
 
-        if ((pv < _threshold)||(_pixels[i] >= 65534)) {
-            _pixels[i] = 0;
-        } else {
-          if(weighted){
-              x += static_cast<double>(pv)/65535.0 * (i%_width);
-              y += static_cast<double>(pv)/65535.0 * (i/_width);
-          } else if(pv >= _threshold) {
-              _pixels[i] = std::numeric_limits<value_type>::max();
-              x += i%_width;
-              y += i/_width;
-          }
+        if (weighted) {
+          x += static_cast<double>(pv)/65535.0 * (i%_width);
+          y += static_cast<double>(pv)/65535.0 * (i/_width);
           pixcnt++;
+        } else {
+          if (pv < _threshold) { 
+            // ||(_pixels[i] >= 65534)) {
+            _pixels[i] = 0;
+          } else {
+            _pixels[i] = std::numeric_limits<value_type>::max();
+            x += i%_width;
+            y += i/_width;
+            pixcnt++;
+          }
         }
     }
 
@@ -792,6 +794,10 @@ void png::downscale(std::size_t dfact,bool use_filter) {
     pixel_vector_type newpix(nx*ny);
     newpix.reserve(nx*ny);
 
+    int orig_min = 99999999;
+    int orig_max = -1;
+    int new_min = 99999999;
+    int new_max = -1;
     int newxy = 0;
     for (int y = starty; y <= endy; y+=stridey) {
       for (int x = startx; x <= endx; x+=stridex) {
@@ -810,26 +816,39 @@ void png::downscale(std::size_t dfact,bool use_filter) {
            for (int wy = ys; wy < ye; wy++) {
              for (int wx = xs; wx < xe; wx++) {
                int xy = (wy * _width) + wx;
+               if (_pixels[xy] < orig_min) orig_min = _pixels[xy];
+               if (_pixels[xy] > orig_max) orig_max = _pixels[xy];
                float fval = filt[((wy-ys)*dfact)+(wx-xs)];
-               pixsum += _pixels[xy] * fval; 
+               pixsum += _pixels[xy] * fval;           
                pixcnt++;
              }
            } 
   
-          newpix[newxy] = roundf((float)pixsum/(float)pixcnt); 
-        } else {
-          newpix[newxy] = _pixels[(y * _width)+x];
-        }
+           newpix[newxy] = roundf((float)pixsum/(float)pixcnt); 
+           if (newpix[newxy] < new_min) new_min = newpix[newxy];
+           if (newpix[newxy] > new_max) new_max = newpix[newxy];
+         } else {
+           newpix[newxy] = _pixels[(y * _width)+x];
+         }
 
-        newxy++;
+         newxy++;
       }
-    }
+   }
 
+   // Averaging tends to compress the histogram so stretch it back out
+   // and copy the pixels back.
    _pixels.clear();
    _pixels.reserve(newpix.size());
    _pixels.resize(newpix.size());
-   for (int i = 0; i < (int)newpix.size(); i++) {
-     _pixels[i] = newpix[i];  
+   if (use_filter) {
+     float hfact = (float)(orig_max - orig_min) / (float)(new_max - new_min + 1.0);
+     for (int i = 0; i < (int)newpix.size(); i++) {
+       _pixels[i] = ((newpix[i] - new_min) * hfact) + orig_min;  
+     }
+   } else {
+     for (int i = 0; i < (int)newpix.size(); i++) {
+       _pixels[i] = newpix[i];
+     }
    }
 
    _width = nx;
