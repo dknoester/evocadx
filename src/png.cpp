@@ -723,7 +723,7 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
     }
 
     //_centroid = std::make_pair(x/_pixels.size(), y/_pixels.size());
-    _centroid = std::make_pair(x/pixcnt, y/pixcnt);
+    _centroid = std::make_pair(round(x/pixcnt), round(y/pixcnt));
 }
 
 unsigned long png::width() const {

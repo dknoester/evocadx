@@ -72,17 +72,17 @@ BOOST_AUTO_TEST_CASE(test_png2_pixels_unweighted) {
 BOOST_AUTO_TEST_CASE(test_png1_centroid_thresh) {
     png image = png(PNG1, false, 0, 0);
     png::centroid_type cent = image.get_centroid();
-    BOOST_CHECK_CLOSE(cent.first, 1894.13, 0.01);
-    BOOST_CHECK_CLOSE(cent.second, 2431.93, 0.01);
-    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1394.826578, 0.01);
+    BOOST_CHECK_CLOSE(cent.first, 1894, 0.01);
+    BOOST_CHECK_CLOSE(cent.second, 2432, 0.01);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(1480,1100), 1394.854831, 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(test_png2_centroid_thresh) {
     png image = png(PNG2, false, 0, 0);
     png::centroid_type cent = image.get_centroid();
-    BOOST_CHECK_CLOSE(cent.first, 698.737, 0.01);
-    BOOST_CHECK_CLOSE(cent.second, 2268.53, 0.01);
-    BOOST_CHECK_CLOSE(image.distance_to_centroid(1200,1600), 835.581807, 0.01);
+    BOOST_CHECK_CLOSE(cent.first, 699, 0.01);
+    BOOST_CHECK_CLOSE(cent.second, 2269, 0.01);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(1200,1600), 835.800215, 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(test_png1_centroid_downscale) {
@@ -90,9 +90,9 @@ BOOST_AUTO_TEST_CASE(test_png1_centroid_downscale) {
     BOOST_CHECK_EQUAL(image.width(), 667u);
     BOOST_CHECK_EQUAL(image.height(), 1278u);
     png::centroid_type cent = image.get_centroid();
-    BOOST_CHECK_CLOSE(cent.first, 473.025, 0.01);
-    BOOST_CHECK_CLOSE(cent.second, 607.872, 0.01);
-    BOOST_CHECK_CLOSE(image.distance_to_centroid(201,305), 407.098328, 0.01);
+    BOOST_CHECK_CLOSE(cent.first, 473, 0.01);
+    BOOST_CHECK_CLOSE(cent.second, 608, 0.01);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(201,305), 407.176866, 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(test_png2_centroid_downscale) {
@@ -100,8 +100,8 @@ BOOST_AUTO_TEST_CASE(test_png2_centroid_downscale) {
     BOOST_CHECK_EQUAL(image.width(), 611u);
     BOOST_CHECK_EQUAL(image.height(), 1143u);
     png::centroid_type cent = image.get_centroid();
-    BOOST_CHECK_CLOSE(cent.first, 174.253, 0.01);
-    BOOST_CHECK_CLOSE(cent.second, 566.591, 0.01);
-    BOOST_CHECK_CLOSE(image.distance_to_centroid(400,808), 330.514770, 0.01);
+    BOOST_CHECK_CLOSE(cent.first, 174, 0.01);
+    BOOST_CHECK_CLOSE(cent.second, 567, 0.01);
+    BOOST_CHECK_CLOSE(image.distance_to_centroid(400,808), 330.389164, 0.01);
 }
 
