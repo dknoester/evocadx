@@ -666,11 +666,11 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
     
     assert(_pixels.size() == (_width*_height));
 
-    downscale(downscale_fact);
+    downscale(downscale_fact,true);
 
     // If the threshold was not specified then calculate the
     // threshold based on a histogram analysis heuristic.
-    if (_threshold <= 0) { 
+    if ((_threshold <= 0)&&(!weighted)) { 
       int totcnt = 0;
       histogram_vector_type histo(65536,0.0);
       for (std::size_t i=0; i<_pixels.size(); i++) {
@@ -687,7 +687,7 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
       int threshpos = 0;
       double sum = 0.0;
       int minpart = histo.size() * 0.15;
-      for (std::size_t i = histo.size()-1; i >= minpart; i--) {
+      for (int i = (int)histo.size()-1; i >= minpart; i--) {
         sum += histo[i];
         threshpos = i;
         if (sum > 0.4) break;
@@ -706,23 +706,25 @@ png::png(const std::string& filename, bool weighted, value_type threshold,unsign
     for(std::size_t i=0; i<_pixels.size(); i++) {
         float pv = _pixels[i];
 
-        if ((pv < _threshold)||(_pixels[i] >= 65534)) {
-            _pixels[i] = 0;
+        if (weighted) {
+          x += static_cast<double>(pv)/65535.0 * (i%_width);
+          y += static_cast<double>(pv)/65535.0 * (i/_width);
+          pixcnt++;
         } else {
-          if(weighted){
-              x += static_cast<double>(pv)/65535.0 * (i%_width);
-              y += static_cast<double>(pv)/65535.0 * (i/_width);
-          } else if(pv >= _threshold) {
-              _pixels[i] = std::numeric_limits<value_type>::max();
-              x += i%_width;
-              y += i/_width;
-              pixcnt++;
+          if (pv < _threshold) { 
+            // ||(_pixels[i] >= 65534)) {
+            _pixels[i] = 0;
+          } else {
+            _pixels[i] = std::numeric_limits<value_type>::max();
+            x += i%_width;
+            y += i/_width;
+            pixcnt++;
           }
         }
     }
 
     //_centroid = std::make_pair(x/_pixels.size(), y/_pixels.size());
-    _centroid = std::make_pair(x/pixcnt, y/pixcnt);
+    _centroid = std::make_pair(round(x/pixcnt), round(y/pixcnt));
 }
 
 unsigned long png::width() const {
@@ -762,7 +764,7 @@ const png::value_type& png::operator[](std::size_t n) const {
     return _pixels[n];
 }
 
-void png::downscale(std::size_t dfact) {
+void png::downscale(std::size_t dfact,bool use_filter) {
     if (dfact <= 1) return;
 
     int nx = _width / dfact;
@@ -777,54 +779,77 @@ void png::downscale(std::size_t dfact) {
 
     // Construct a tringular approximation of the sinc filter using
     // poor-man's convolution.
-    float halfp = (float)(dfact+2) / 2.0; 
-    float slope = 1.0/halfp; 
-    for (int y = 0; y < dfact; y++) {
-      for (int x = 0; x < dfact; x++) {
-        if ((x+1) <= halfp) filt[(y*dfact)+x] = slope * (x+1);
-        else filt[(y*dfact)+x] = slope * (halfp - (x+1) + halfp);
-        if ((y+1) <= halfp) filt[(y*dfact)+x] *= slope * (y+1);
-        else filt[(y*dfact)+x] *= slope * (halfp - (y+1) + halfp);
+    if (use_filter) {
+      float halfp = (float)(dfact+2) / 2.0; 
+      float slope = 1.0/halfp; 
+      for (int y = 0; y < (int)dfact; y++) {
+        for (int x = 0; x < (int)dfact; x++) {
+          if ((x+1) <= halfp) filt[(y*dfact)+x] = slope * (x+1);
+          else filt[(y*dfact)+x] = slope * (halfp - (x+1) + halfp);
+          if ((y+1) <= halfp) filt[(y*dfact)+x] *= slope * (y+1);
+          else filt[(y*dfact)+x] *= slope * (halfp - (y+1) + halfp);
+        }
       }
     }
 
     pixel_vector_type newpix(nx*ny);
     newpix.reserve(nx*ny);
 
+    int orig_min = 99999999;
+    int orig_max = -1;
+    int new_min = 99999999;
+    int new_max = -1;
     int newxy = 0;
-    int pixsum = 0;
     for (int y = starty; y <= endy; y+=stridey) {
       for (int x = startx; x <= endx; x+=stridex) {
-         int xs = x - (dfact/2);
-         int ys = y - (dfact/2);
-         int xe = xs + dfact;
-         int ye = ys + dfact;
-         if (xs < 0) xs = 0;
-         if (ys < 0) ys = 0;
-         if (xe > _width) xe = _width;
-         if (ye > _height) ye = _height;
+         if (use_filter) {
+           int xs = x - (dfact/2);
+           int ys = y - (dfact/2);
+           int xe = xs + dfact;
+           int ye = ys + dfact;
+           if (xs < 0) xs = 0;
+           if (ys < 0) ys = 0;
+           if (xe > (int)_width) xe = _width;
+           if (ye > (int)_height) ye = _height;
+  
+           int pixcnt = 0; 
+           int pixsum = 0;
+           for (int wy = ys; wy < ye; wy++) {
+             for (int wx = xs; wx < xe; wx++) {
+               int xy = (wy * _width) + wx;
+               if (_pixels[xy] < orig_min) orig_min = _pixels[xy];
+               if (_pixels[xy] > orig_max) orig_max = _pixels[xy];
+               float fval = filt[((wy-ys)*dfact)+(wx-xs)];
+               pixsum += _pixels[xy] * fval;           
+               pixcnt++;
+             }
+           } 
+  
+           newpix[newxy] = roundf((float)pixsum/(float)pixcnt); 
+           if (newpix[newxy] < new_min) new_min = newpix[newxy];
+           if (newpix[newxy] > new_max) new_max = newpix[newxy];
+         } else {
+           newpix[newxy] = _pixels[(y * _width)+x];
+         }
 
-         int pixcnt = 0; 
-         for (int wy = ys; wy < ye; wy++) {
-           for (int wx = xs; wx < xe; wx++) {
-             int xy = (wy * _width) + wx;
-             float fval = filt[((wy-ys)*dfact)+(wx-xs)];
-             pixsum += _pixels[xy] * fval; 
-             pixcnt++;
-           }
-         } 
-
-        // newpix[newxy] = roundf((float)pixsum/(float)pixcnt); 
-        newpix[newxy] = _pixels[(y * _width)+x];
-        newxy++;
+         newxy++;
       }
-    }
+   }
 
+   // Averaging tends to compress the histogram so stretch it back out
+   // and copy the pixels back.
    _pixels.clear();
    _pixels.reserve(newpix.size());
    _pixels.resize(newpix.size());
-   for (int i = 0; i < newpix.size(); i++) {
-     _pixels[i] = newpix[i];  
+   if (use_filter) {
+     float hfact = (float)(orig_max - orig_min) / (float)(new_max - new_min + 1.0);
+     for (int i = 0; i < (int)newpix.size(); i++) {
+       _pixels[i] = ((newpix[i] - new_min) * hfact) + orig_min;  
+     }
+   } else {
+     for (int i = 0; i < (int)newpix.size(); i++) {
+       _pixels[i] = newpix[i];
+     }
    }
 
    _width = nx;
