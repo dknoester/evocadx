@@ -1,4 +1,4 @@
-/* analysis.h
+/* dayan_mdp.cpp
  *
  * This file is part of EvoCADx.
  *
@@ -17,8 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _ANALYSIS_H_
-#define _ANALYSIS_H_
+#include <mkv/markov_network_evolution.h>
+#include <ea/generational_models/moran_process.h>
+#include <ea/selection/rank.h>
+#include <ea/cmdline_interface.h>
+#include <ea/datafiles/fitness.h>
+using namespace ealib;
 
+#include "dayan.h"
 
-#endif
+typedef mkv::markov_network_evolution
+< dayan_mdp
+, recombination::asexual
+, generational_models::moran_process<selection::proportionate< >, selection::rank>
+> ea_type;
+
+LIBEA_CMDLINE_INSTANCE(ea_type, dayan_cli);

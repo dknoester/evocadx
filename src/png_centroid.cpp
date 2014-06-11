@@ -1,4 +1,4 @@
-/* centroid.cpp
+/* png_centroid.cpp
  *
  * This file is part of EvoCADx.
  *
@@ -18,17 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <libgen.h>
-#include <boost/filesystem.hpp>
-#include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <algorithm>
 #include <iterator>
 #include <vector>
-#include <ea/mkv/markov_evolution_algorithm.h>
-#include <ea/mkv/sequence_matrix.h>
-#include <ea/mkv/camera.h>
+#include <mkv/markov_network_evolution.h>
+#include <ea/data_structures/sequence_matrix.h>
+#include <ea/iterators/camera.h>
 #include <ea/generational_models/moran_process.h>
-#include <ea/selection/elitism.h>
+#include <ea/selection/rank.h>
 #include <ea/fitness_function.h>
 #include <ea/cmdline_interface.h>
 #include <ea/datafiles/fitness.h>
@@ -36,42 +34,10 @@ using namespace ealib;
 
 #include "analysis.h"
 #include "evocadx.h"
-#include "png.h"
+#include <evocadx/db/png.h>
 
 typedef boost::shared_ptr<png> png_ptr_type;
 typedef std::vector<png_ptr_type> image_vector_type;
-typedef std::vector<std::string> filename_vector_type;
-
-//! Returns a vector of filenames matching regex r in a recursive search of directory d.
-filename_vector_type find_files(const std::string& d, const std::string& r) {
-    using namespace boost::filesystem;
-    filename_vector_type filenames;
-    boost::regex e(r);
-    recursive_directory_iterator i((path(d))); // the extra parens are needed to avoid the most vexing parse
-    recursive_directory_iterator end;
-    
-    for( ; i!=end; ++i) {
-        if(boost::filesystem::is_regular_file(*i)) {
-            std::string abspath=absolute(*i).string();
-            if(boost::regex_match(abspath,e)) {
-                filenames.push_back(abspath);
-            }
-        }
-    }
-    return filenames;
-}
-
-//! Analysis function that prints the list of image files that will be loaded.
-template <typename EA>
-struct evocadx_filenames : public ealib::analysis::unary_function<EA> {
-    static const char* name() { return "evocadx_filenames"; }
-    virtual ~evocadx_filenames() { }
-    virtual void operator()(EA& ea) {
-        std::cout << "Matching filenames:" << std::endl << "\t";
-        filename_vector_type filenames = find_files(get<EVOCADX_DATADIR>(ea), get<EVOCADX_FILE_REGEX>(ea));
-        std::copy(filenames.begin(), filenames.end(), std::ostream_iterator<std::string>(std::cout, "\n\t"));
-    }
-};
 
 
 /*! Image centroid fitness function for Markov networks.
@@ -157,24 +123,11 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
 };
 
 // Evolutionary algorithm definition.
-typedef markov_evolution_algorithm
+typedef mkv::markov_network_evolution
 < centroid_fitness
 , recombination::asexual
-, generational_models::moran_process<selection::proportionate< >, selection::elitism<selection::random> >
+, generational_models::moran_process<selection::proportionate< >, selection::rank>
 > ea_type;
-
-//! Randomly shuffles the list of images at the end of every update.
-template <typename EA>
-struct evocadx_shuffle_images : end_of_update_event<EA> {
-    evocadx_shuffle_images(EA& ea) : end_of_update_event<EA>(ea) { }
-    virtual ~evocadx_shuffle_images() { }
-    
-    virtual void operator()(EA& ea) {
-        std::random_shuffle(ea.fitness_function()._images.begin(),
-                            ea.fitness_function()._images.end(),
-                            ea.rng());
-    }
-};
 
 
 /*! Define the EA's command-line interface.
@@ -191,7 +144,6 @@ public:
         add_option<CHECKPOINT_PREFIX>(this);
         add_option<RNG_SEED>(this);
         add_option<RECORDING_PERIOD>(this);
-        add_option<ELITISM_N>(this);
 
         add_option<EVOCADX_DATADIR>(this);
         add_option<EVOCADX_FILE_REGEX>(this);
@@ -214,11 +166,8 @@ public:
     };
     
     virtual void before_initialization(EA& ea) {
-        using namespace ealib::mkv;
-        put<MKV_INPUT_N>(8*get<EVOCADX_RETINA_SIZE>(ea) + get<EVOCADX_FOVEA_SIZE>(ea)*get<EVOCADX_FOVEA_SIZE>(ea), ea);
-        
-        ea.config().disable(PROBABILISTIC);
-        ea.config().disable(ADAPTIVE);
+        put<mkv::MKV_INPUT_N>(8*get<EVOCADX_RETINA_SIZE>(ea) + get<EVOCADX_FOVEA_SIZE>(ea)*get<EVOCADX_FOVEA_SIZE>(ea), ea);
+        put<mkv::MKV_OUTPUT_N>(4, ea);
     }
 };
 LIBEA_CMDLINE_INSTANCE(ea_type, cli);

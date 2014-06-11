@@ -23,7 +23,8 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include "png.h"
+
+#include <evocadx/db/png.h>
 
 /* ------Helper functions for constructor------*/
 // picopng needs this...

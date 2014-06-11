@@ -22,7 +22,7 @@
 #endif
 #define BOOST_TEST_MAIN
 #include "test.h"
-#include "png.h"
+#include <evocadx/db/png.h>
 
 BOOST_AUTO_TEST_CASE(test_png1) {
     png image = png("/mnt/research/evocadx/testdata/test1.png", true, 1000);
