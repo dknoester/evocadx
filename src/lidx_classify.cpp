@@ -112,7 +112,6 @@ struct lidx_classify : fitness_function<unary_fitness<double>, constantS, stocha
                 ci.move(algorithm::bits2ternary(N.begin_output()), algorithm::bits2ternary(N.begin_output()+2));
             }
             
-            int d=0;
             std::vector<int> D;
             algorithm::range_pair2indices(N.begin_output()+4, N.end_output(), std::back_inserter(D));
 

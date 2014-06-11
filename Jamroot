@@ -2,7 +2,7 @@ import os ;
 local HOME = [ os.environ HOME ] ;
 
 project
-    : requirements <define>BOOST_PARAMETER_MAX_ARITY=7
+    : requirements <define>BOOST_PARAMETER_MAX_ARITY=7 <include>./include
     ;
 
 use-project /libea : ../ealib/libea ;
