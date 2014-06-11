@@ -32,7 +32,6 @@
 #include <ea/datafiles/fitness.h>
 using namespace ealib;
 
-#include "analysis.h"
 #include "evocadx.h"
 #include <evocadx/db/lidx.h>
 

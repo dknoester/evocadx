@@ -1,15 +1,50 @@
-import testing ;
 import os ;
 local HOME = [ os.environ HOME ] ;
 
-use-project /libea : ../ealib/libea ;
+project
+    : requirements <define>BOOST_PARAMETER_MAX_ARITY=7
+    ;
 
-exe evocadx-centroid :
-    src/centroid.cpp
+use-project /libea : ../ealib/libea ;
+use-project /libmkv : ../ealib/libmkv ;
+
+import testing ;
+
+exe evocadx-png-centroid :
+    src/png_centroid.cpp
     src/png.cpp
+    src/evocadx.cpp
     /libea//libea_runner
+    /libmkv//libmkv
     /boost//filesystem
     /boost//system
+    : <link>static ;
+
+exe evocadx-lidx-classify :
+    src/lidx_classify.cpp
+    src/evocadx.cpp
+    /libea//libea_runner
+    /libmkv//libmkv
+    /boost//filesystem
+    /boost//system
+    : <link>static ;
+
+exe evocadx-dayan-mdp :
+    src/dayan_mdp.cpp
+    /libea//libea_runner
+    /libmkv//libmkv
+    : <link>static ;
+
+exe evocadx-dayan-signal :
+    src/dayan_signal.cpp
+    /libea//libea_runner
+    /libmkv//libmkv
+    : <link>static ;
+
+exe evocadx-dayan-temporal :
+    src/dayan_temporal.cpp
+    /libea//libea_runner
+    /libmkv//libmkv
     : <link>static ;
 
 run test/test_png.cpp
@@ -19,5 +54,5 @@ run test/test_png.cpp
     ;
 
 install dist : 
-    evocadx-centroid
+    evocadx-png-centroid evocadx-lidx-classify evocadx-dayan-mdp evocadx-dayan-signal evocadx-dayan-temporal
     : <location>$(HOME)/bin ;
