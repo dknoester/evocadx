@@ -29,7 +29,7 @@ using namespace ealib;
 typedef mkv::markov_network_evolution
 < dayan_temporal
 , recombination::asexual
-, generational_models::moran_process<selection::proportionate< >, selection::rank>
+, generational_models::moran_process<selection::proportionate< >, selection::rank< > >
 > ea_type;
 
 LIBEA_CMDLINE_INSTANCE(ea_type, dayan_cli);

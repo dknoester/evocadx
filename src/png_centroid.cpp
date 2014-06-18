@@ -124,7 +124,7 @@ struct centroid_fitness : fitness_function<unary_fitness<double>, constantS, sto
 typedef mkv::markov_network_evolution
 < centroid_fitness
 , recombination::asexual
-, generational_models::moran_process<selection::proportionate< >, selection::rank>
+, generational_models::moran_process<selection::proportionate< >, selection::rank< > >
 > ea_type;
 
 

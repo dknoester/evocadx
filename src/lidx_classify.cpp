@@ -129,7 +129,7 @@ struct lidx_classify : fitness_function<unary_fitness<double>, constantS, stocha
 typedef mkv::markov_network_evolution
 < lidx_classify
 , recombination::asexual
-, generational_models::moran_process<selection::proportionate< >, selection::rank>
+, generational_models::moran_process<selection::proportionate< >, selection::rank< > >
 > ea_type;
 
 //! Randomly shuffles the list of images at the end of every update.
