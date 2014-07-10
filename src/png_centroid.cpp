@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
-#include <mkv/markov_network_evolution.h>
+#include <ea/mkv/markov_network_evolution.h>
 #include <ea/data_structures/sequence_matrix.h>
 #include <ea/iterators/camera.h>
 #include <ea/generational_models/moran_process.h>

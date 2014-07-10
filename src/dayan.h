@@ -246,6 +246,9 @@ public:
     }
     
     virtual void gather_tools() {
+        add_tool<mkv::dominant_reduced_graph>(this);
+        add_tool<mkv::dominant_causal_graph>(this);
+        add_tool<mkv::dominant_genetic_graph>(this);
     }
     
     virtual void gather_events(EA& ea) {

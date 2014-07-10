@@ -61,6 +61,10 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-c ../etc/dayan.cfg --ea.rng.seed=1 --verbose"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-l checkpoint-100.xml --analyze dominant_reduced_graph"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
